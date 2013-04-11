@@ -173,11 +173,15 @@ public class OwlParser {
 
         // 4. display results
         System.out.println("Found " + hits.length + " hits.");
-        for (int i = 0; i < hits.length; ++i) {
-            int docId = hits[i].doc;
-            Document d = searcher.doc(docId);
-            System.out.println((i + 1) + ". " + d.get("code_compacted") + "\t" + d.get("label"));
-        }
+//        for (int i = 0; i < hits.length; ++i) {
+//            int docId = hits[i].doc;
+//            Document d = searcher.doc(docId);
+//            System.out.println((i + 1) + ". " + d.get("code_compacted") + "\t" + d.get("label"));
+//        }
+        int docId = hits[0].doc;
+      Document d = searcher.doc(docId);
+      System.out.println((1) + ". " + d.get("code_compacted") + "\t" + d.get("label"));
+        
 
     }
 }
