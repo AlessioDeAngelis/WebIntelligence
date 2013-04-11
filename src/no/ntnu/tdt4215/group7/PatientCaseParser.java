@@ -7,19 +7,20 @@ import java.util.concurrent.Callable;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import no.ntnu.tdt4215.group7.entity.PatientCase;
+import no.ntnu.tdt4215.group7.entity.CodeType;
+import no.ntnu.tdt4215.group7.entity.MedDocument;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class PatientCaseParser implements Callable<List<PatientCase>> {
-	List<PatientCase> results;
+public class PatientCaseParser implements Callable<List<MedDocument>> {
+	List<MedDocument> results;
 	String filename;
 
 	@Override
-	public List<PatientCase> call() throws Exception {
-		results = new ArrayList<PatientCase>();
+	public List<MedDocument> call() throws Exception {
+		results = new ArrayList<MedDocument>();
 
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		SAXParser saxParser = factory.newSAXParser();
@@ -39,14 +40,14 @@ public class PatientCaseParser implements Callable<List<PatientCase>> {
 
 	class PatientXmlHandler extends DefaultHandler {
 
-		PatientCase currentCase;
+		MedDocument currentCase;
 		boolean inSentence = false;
 
 		@Override
 		public void startElement(String uri, String localName, String qName,
 				Attributes attributes) throws SAXException {
 			if (qName.equals("case")) {
-				currentCase = new PatientCase();
+				currentCase = new MedDocument(CodeType.CLINICAL_NOTE);
 				currentCase.setId(Integer.parseInt(attributes.getValue(0)));
 			} else if (qName.equals("sentence")) {
 				inSentence = true;

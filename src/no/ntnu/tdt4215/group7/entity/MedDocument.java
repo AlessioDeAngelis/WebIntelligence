@@ -5,7 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class PatientCase {
+public class MedDocument {
+	
+	CodeType type;
 	
 	int id;
 	
@@ -39,7 +41,8 @@ public class PatientCase {
 		}
 	}
 
-	public PatientCase() {
+	public MedDocument(CodeType type) {
+		this.type = type;
 		sentences = new ArrayList<Sentence>();
 	}
 	
@@ -51,5 +54,17 @@ public class PatientCase {
 		}
 		
 		return codeSet;
+	}
+	
+	public List<String> getTextByCode(CodeType codeType, String code) {
+		List<String> results = new ArrayList<String>();
+		
+		for(Sentence sentence : sentences) {
+			if(sentence.containsCode(codeType, code)) {
+				results.add(sentence.getText());
+			}
+		}
+		
+		return results;
 	}
 }
