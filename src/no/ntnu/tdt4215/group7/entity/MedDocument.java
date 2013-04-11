@@ -9,11 +9,11 @@ public class MedDocument {
 	
 	CodeType type;
 	
-	int id;
+	String id;
 	
 	List<Sentence> sentences;
 
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
@@ -21,7 +21,7 @@ public class MedDocument {
 		return sentences;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

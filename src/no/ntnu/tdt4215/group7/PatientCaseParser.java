@@ -48,7 +48,7 @@ public class PatientCaseParser implements Callable<List<MedDocument>> {
 				Attributes attributes) throws SAXException {
 			if (qName.equals("case")) {
 				currentCase = new MedDocument(CodeType.CLINICAL_NOTE);
-				currentCase.setId(Integer.parseInt(attributes.getValue(0)));
+				currentCase.setId(attributes.getValue(0));
 			} else if (qName.equals("sentence")) {
 				inSentence = true;
 			}
