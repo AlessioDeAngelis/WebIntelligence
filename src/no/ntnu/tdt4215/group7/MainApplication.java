@@ -11,7 +11,14 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 public class MainApplication {
     public static void main(String[] args) throws IOException {
-        String pathFile = "data/icd10no.owl";
+
+	
+	public static final String ICD10_FILE = "data/icd10no.owl";
+	public static final String ATC_FILE = "FIXME";
+	public static final String LMHB_DIR = "FIXME";
+		
+    public static void main(String[] args) {
+        String pathFile = ICD10_FILE;
         OwlParser owlParser = new OwlParser();
         Map<String,OntProperty> map = owlParser.mapOntProperties(pathFile);
         List<Resource> resources = owlParser.listResourcesWithProperty(map.get("code_compacted"));
