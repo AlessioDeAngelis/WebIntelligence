@@ -14,7 +14,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class PatientCaseParser implements Callable<List<MedDocument>> {
+public class PatientCaseParser implements DocumentParser {
 	List<MedDocument> results;
 	String filename;
 
