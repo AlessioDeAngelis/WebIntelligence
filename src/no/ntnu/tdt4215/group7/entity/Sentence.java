@@ -44,7 +44,6 @@ public class Sentence {
 		if (codeMap.get(codeType) == null) {
 			return false;
 		}
-
 		return codeMap.get(codeType).contains(code); //FIXME
 	}
 
@@ -61,8 +60,29 @@ public class Sentence {
 				return input.containsCode(codeType, code);
 			}
 		}
-
 		return false;
 	}
-
+	
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		
+		sb.append(getText());
+		
+		sb.append(" (ICD: ");
+		
+		for(String code : getCodes(CodeType.ICD10)) {
+			sb.append(code).append(", ");
+		}
+		
+		sb.append("ATC: ");
+		
+		for(String code : getCodes(CodeType.ICD10)) {
+			sb.append(code).append(", ");
+		}
+		
+		sb.append(")");
+		
+		return sb.toString();		
+	}
 }

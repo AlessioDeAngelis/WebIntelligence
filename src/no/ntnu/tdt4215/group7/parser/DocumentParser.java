@@ -1,4 +1,4 @@
-package no.ntnu.tdt4215.group7;
+package no.ntnu.tdt4215.group7.parser;
 
 import java.util.List;
 import java.util.concurrent.Callable;

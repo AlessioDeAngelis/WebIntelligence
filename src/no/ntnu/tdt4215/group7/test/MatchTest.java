@@ -1,14 +1,13 @@
 package no.ntnu.tdt4215.group7.test;
 
-import static org.junit.Assert.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import no.ntnu.tdt4215.group7.MatchingService;
 import no.ntnu.tdt4215.group7.entity.CodeType;
 import no.ntnu.tdt4215.group7.entity.MedDocument;
 import no.ntnu.tdt4215.group7.entity.Sentence;
+import no.ntnu.tdt4215.group7.service.MatchingServiceImpl;
+import no.ntnu.tdt4215.group7.service.MatchingService;
 
 import org.junit.Test;
 
@@ -55,7 +54,7 @@ public class MatchTest {
 		book.add(lmhbChapter1);
 		book.add(lmhbChapter2);
 		
-		MatchingService service = new MatchingService(book);
+		MatchingService service = new MatchingServiceImpl(book);
 		
 		List<MedDocument> result = service.findRelevantDocument(patientCase1);
 		

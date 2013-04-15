@@ -1,4 +1,4 @@
-package no.ntnu.tdt4215.group7;
+package no.ntnu.tdt4215.group7.parser;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;

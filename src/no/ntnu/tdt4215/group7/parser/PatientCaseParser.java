@@ -1,4 +1,4 @@
-package no.ntnu.tdt4215.group7;
+package no.ntnu.tdt4215.group7.parser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,9 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class PatientCaseParser implements DocumentParser {
+	
+	public static final String PATIENT_CASE_FILE = "data/cases.xml";
+	
 	List<MedDocument> results;
 	String filename;
 
@@ -35,7 +38,7 @@ public class PatientCaseParser implements DocumentParser {
 	}
 	
 	public PatientCaseParser() {
-		this("data/cases.xml");
+		this(PATIENT_CASE_FILE);
 	}
 
 	class PatientXmlHandler extends DefaultHandler {
