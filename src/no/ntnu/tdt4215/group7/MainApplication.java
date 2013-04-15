@@ -10,22 +10,22 @@ import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 public class MainApplication {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String pathFile = "data/icd10no.owl";
         OwlParser owlParser = new OwlParser();
         Map<String,OntProperty> map = owlParser.mapOntProperties(pathFile);
-        List<Resource> resources = owlParser.listResourcesWithProperty(map.get(1));
+        List<Resource> resources = owlParser.listResourcesWithProperty(map.get("code_compacted"));
+        owlParser.createICDObjects(resources);
         Directory index = null;
         try {
-           index = owlParser.createIndex(resources);
+           index = owlParser.indexIcdObjects();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String queryString = "Eva Andersen er en skoleelev som har hatt insulinkrevende diabetes mellitus i 3 år.";
+        String queryString = "Hun har en bror som også har diabetes og som har brukt insulin i flere år";
         try {
-            owlParser.query(queryString,index);
+            owlParser.query(queryString,"extra",index);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

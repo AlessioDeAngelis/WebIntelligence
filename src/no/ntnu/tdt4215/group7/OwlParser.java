@@ -3,12 +3,15 @@ package no.ntnu.tdt4215.group7;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.lucene.analysis.no.NorwegianAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
@@ -40,10 +43,12 @@ public class OwlParser {
 
     private OntModel model;
     private Map<String, OntProperty> mapOntProperties;
+    private List<ICD> icds;
 
     public OwlParser() {
         this.model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM, null);
         this.setMapOntProperties(new HashMap<String, OntProperty>());
+        this.icds = new ArrayList<ICD>();
     }
 
     public OntModel parse(String pathFile) {
@@ -57,10 +62,11 @@ public class OwlParser {
 
         while (i.hasNext()) {
             OntProperty prop = (OntProperty) i.next();
-            String propString = prop.toString();
-            String[] splits = propString.split("#");
-            System.out.println("Found prop: " + splits[1]);
-            map.put(splits[1], prop);
+
+            // System.out.println("Found prop: " +prop.getLocalName());
+            System.out.println("private String " + prop.getLocalName() + ";");
+
+            map.put(prop.getLocalName(), prop);
         }
         this.setMapOntProperties(map);
         return map;
@@ -68,7 +74,8 @@ public class OwlParser {
 
     public List<Resource> listResourcesWithProperty(Property property) {
         // select all the resources with a VCARD.FN property
-        ResIterator iter = model.listResourcesWithProperty(property);
+
+        ResIterator iter = model.listResourcesWithProperty(this.mapOntProperties.get("code_compacted"));
         List<Resource> resources = new ArrayList<Resource>();
         if (iter.hasNext()) {
             while (iter.hasNext()) {
@@ -76,6 +83,9 @@ public class OwlParser {
                 // Statement stat =
                 // iter.nextResource().getProperty(this.mapOntProperties.get("code_compacted"));
                 resources.add(res);
+                // System.out.println(res.getLocalName() + "," + "," +
+                // res.getNameSpace());
+
                 // if (stat !=null) {
                 // String stringa = stat.getString();
                 // System.out.println("  " + stringa);
@@ -84,7 +94,12 @@ public class OwlParser {
         } else {
             System.out.println("No vcards were found in the database");
         }
-
+        // StmtIterator it = resources.get(0).listProperties();
+        // while(it.hasNext()){
+        // Statement stm = it.next();
+        // System.out.println(stm.getString());
+        // }
+        // System.out.println(resources.get(0).listProperties());
         return resources;
     }
 
@@ -96,92 +111,145 @@ public class OwlParser {
         this.mapOntProperties = mapOntProperties;
     }
 
-    public Directory createIndex(List<Resource> resources) throws IOException {
+    /*
+     * From the resource to ICD object
+     */
+    public Directory createICDObjects(List<Resource> resources) throws IOException {
         NorwegianAnalyzer analyzer = new NorwegianAnalyzer(Version.LUCENE_40);
         Directory index = new RAMDirectory();
         IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
         IndexWriter w = new IndexWriter(index, config);
-        // add docs
+        // add ICD codes
         for (Resource res : resources) {
-            Statement code_compacted = res.getProperty(this.mapOntProperties.get("code_compacted"));
-            Statement label = res.getProperty(this.mapOntProperties.get(RDFS.label));
+            String codeString = res.getLocalName();
+            String undertermString = "";
+            String labelString = "";
+            String subclassString = "";
+            Set<String> synonyms = new HashSet<String>();
+
             Statement underterm = res.getProperty(this.mapOntProperties.get("underterm"));
-            // there may be more synonyms
             // Object underterm = null;
-            StmtIterator iter = res.listProperties(this.mapOntProperties.get("synonym"));
-            String extraInformation = "";
             if (underterm != null) {
-                extraInformation += underterm.getString() + " ";
+                undertermString = underterm.getObject().toString();
             }
+
+            /*
+             * there may be more synonyms
+             */
+            StmtIterator iter;
+            iter = res.listProperties(this.mapOntProperties.get("synonym"));
             while (iter.hasNext()) {
-                extraInformation += iter.nextStatement().getObject().toString() + " ";
-            }
-            String codeS = "";
-            if (code_compacted != null) {
-                code_compacted.getString();
+                // extraInformation +=
+                String synonym = iter.nextStatement().getObject().toString().split("\\^\\^")[0] + " ";
+                synonyms.add(synonym);
             }
 
             /**
-             * There is more than one hit
+             * There is more than one hit for label
              * */
-            String labelS = "";
-
-            iter = res.listProperties(this.mapOntProperties.get(RDFS.label));
+            iter = res.listProperties(RDFS.label);
 
             while (iter.hasNext()) {
                 String tmp = iter.nextStatement().getObject().toString();
                 String[] splits = tmp.split("\\^\\^");
                 if (!splits[0].matches("http.*")) {
-                    labelS += splits[0] + "\t";
+                    labelString += splits[0] + " ";
                 }
             }
-
-            this.addDoc(w, codeS, labelS, extraInformation);
+            
+            /*
+             * Subclass
+             * */
+            Statement subclass = res.getProperty(this.mapOntProperties.get(RDFS.subClassOf));
+            if(subclass != null){
+                subclassString = subclass.getObject().toString().split("#")[1];
+            }
+            ICD icd = new ICD();
+            icd.setCode_compacted(codeString);
+            icd.setLabel(labelString);
+            icd.setSynonyms(synonyms);
+            icd.setUnderterm(undertermString);
+            icd.setSubclass(subclassString);
+            this.icds.add(icd);
         }
-        w.close();
+        return index;
+    }
+    
+    /*
+     * Index ICD objects on Lucene
+     */
+    public Directory indexIcdObjects() throws IOException {
+        NorwegianAnalyzer analyzer = new NorwegianAnalyzer(Version.LUCENE_40);
+        Directory index = new RAMDirectory();
+        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
+        IndexWriter w = new IndexWriter(index, config);
+        // add ICD codes
+        for(ICD icd : this.icds){
+             this.addICDDoc(w, icd);
+        }
+         w.close();
         return index;
     }
 
-    public void addDoc(IndexWriter w, String code_compacted, String label, String extraInformation) throws IOException {
+    /**
+     *In the Lucene doc relative to the icd file we index and stem the label together with the extra information like synonyms
+     *The extra information is used for query expansion
+     **/
+    public void addICDDoc(IndexWriter w, ICD icd) throws IOException {
+        String codecompacted = icd.getCode_compacted();
+        String label = icd.getLabel();
+        //at the momemnt the extra information is given by the underterm and by the synonyms
+        String extraInformation = icd.getUnderterm();
+        for(String syn : icd.getSynonyms()){
+            extraInformation += " " + syn;
+        }
+        
         Document doc = new Document();
-        doc.add(new TextField("label", label, Field.Store.YES));
+        FieldType type = new FieldType();
+        type.setIndexed(true);
+        type.setStored(true);
+        type.setStoreTermVectors(true);
+        type.setTokenized(true);
+        Field fieldLabel = new Field("label", label, type);
+        Field fieldExtra = new Field("extra", label+" "+extraInformation, type);
+
+        doc.add(fieldLabel);
+
         // use a string field for because we don't want it tokenized
-        doc.add(new StringField("code_compacted", code_compacted, Field.Store.YES));
+        doc.add(new StringField("code_compacted", codecompacted, Field.Store.YES));
+        
         if (extraInformation != null || !extraInformation.equals("")) {
-            doc.add(new TextField("extra", label, Field.Store.YES));
+            doc.add(fieldExtra);
         }
         w.addDocument(doc);
     }
 
-    public void query(String queryString, Directory index) throws IOException {
+    public void query(String queryString, String fieldToQuery, Directory index) throws IOException {
         Query q = null;
         try {
-            q = new QueryParser(Version.LUCENE_40, "label", new NorwegianAnalyzer(Version.LUCENE_40))
+            q = new QueryParser(Version.LUCENE_40, fieldToQuery, new NorwegianAnalyzer(Version.LUCENE_40))
                             .parse(queryString);
         } catch (org.apache.lucene.queryparser.classic.ParseException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
         // 3. search
-        int hitsPerPage = 10;
+        int hitsPerPage = 100;
         IndexReader reader = DirectoryReader.open(index);
         IndexSearcher searcher = new IndexSearcher(reader);
         TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);
+
         searcher.search(q, collector);
         ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
         // 4. display results
         System.out.println("Found " + hits.length + " hits.");
-//        for (int i = 0; i < hits.length; ++i) {
-//            int docId = hits[i].doc;
-//            Document d = searcher.doc(docId);
-//            System.out.println((i + 1) + ". " + d.get("code_compacted") + "\t" + d.get("label"));
-//        }
-        int docId = hits[0].doc;
-      Document d = searcher.doc(docId);
-      System.out.println((1) + ". " + d.get("code_compacted") + "\t" + d.get("label"));
-        
-
+        for (int i = 0; i < hits.length; i++) {
+            int docId = hits[i].doc;
+            float score = hits[i].score;
+            Document d = searcher.doc(docId);
+            System.out.println((score) + ". " + "CODE COMPACTED: " + d.get("code_compacted") + "\t" + "LABEL: "
+                            + d.get("label") + d.get("extra"));
+        }
     }
 }
