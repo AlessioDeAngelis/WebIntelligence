@@ -67,4 +67,20 @@ public class MedDocument {
 		
 		return results;
 	}
+	
+	public CodeType getType() {
+		return type;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("doc id: " + id + " type: " + type);
+		
+		for(Sentence sentence : getSentences()) {
+			sb.append(sentence);
+		}
+		
+		return sb.toString();
+	}
 }

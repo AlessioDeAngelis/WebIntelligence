@@ -1,4 +1,4 @@
-package no.ntnu.tdt4215.group7;
+package no.ntnu.tdt4215.group7.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +12,14 @@ import no.ntnu.tdt4215.group7.entity.Sentence;
  * @author Simon Stastny
  *
  */
-public class MatchingService {
+public class MatchingServiceImpl implements MatchingService {
 
 	List<MedDocument> book;
 
+	/* (non-Javadoc)
+	 * @see no.ntnu.tdt4215.group7.impl.MatchingServicee#findRelevantDocument(no.ntnu.tdt4215.group7.entity.MedDocument)
+	 */
+	@Override
 	public List<MedDocument> findRelevantDocument(MedDocument input) {
 
 		List<MedDocument> results = new ArrayList<MedDocument>();
@@ -53,7 +57,11 @@ public class MatchingService {
 		return results;
 	}
 	
-	public MatchingService(List<MedDocument> book) {
+	/**
+	 * 
+	 * @param book book chapters to look into
+	 */
+	public MatchingServiceImpl(List<MedDocument> book) {
 		super();
 		this.book = book;
 	}
