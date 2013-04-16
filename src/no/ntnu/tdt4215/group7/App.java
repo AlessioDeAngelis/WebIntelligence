@@ -22,6 +22,7 @@ import no.ntnu.tdt4215.group7.service.MatchingServiceImpl;
 import no.ntnu.tdt4215.group7.service.FileService;
 import no.ntnu.tdt4215.group7.service.FileServiceImpl;
 import no.ntnu.tdt4215.group7.service.MatchingService;
+import no.ntnu.tdt4215.group7.test.IndexingTest;
 
 import org.apache.lucene.store.Directory;
 
@@ -49,8 +50,8 @@ public class App implements Runnable {
 
 	public void run() {
 		// ICD and ATC indexers
-		Future<Directory> icdIndexerTask = executor.submit(new OwlIndexer(MainApplication.ICD10_FILE)); // TODO IMPLEMENTATION
-		Future<Directory> atcIndexerTask = executor.submit(new OwlIndexer(MainApplication.ATC_FILE)); // TODO IMPLEMENTATION
+		Future<Directory> icdIndexerTask = executor.submit(new OwlIndexer(IndexingTest.ICD10_FILE)); // TODO IMPLEMENTATION
+		Future<Directory> atcIndexerTask = executor.submit(new OwlIndexer(IndexingTest.ATC_FILE)); // TODO IMPLEMENTATION
 
 		// PATIENT FILES
 		List<String> patientFileList = fileService.getPatientFiles();
