@@ -98,7 +98,6 @@ public class ATCParser {
             for (String term : labelTerms) {
                 label += term + " ";
             }
-            System.out.println(label);
             atc.setCode(atcCode);
             atc.setLabel(label);
             atc.setSubClassOf(subClassOf);

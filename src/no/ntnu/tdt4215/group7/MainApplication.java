@@ -43,7 +43,7 @@ public class MainApplication {
         // e.printStackTrace();
         // }
 
-        String queryString = "Hun har en bror som også har diabetes og som har brukt insulin i flere år";
+        String queryString = "Eva Andersen er en skoleelev som har hatt insulin diabetes mellitus i 3 år.";
 
         ATCParser atcParser = new ATCParser();
         atcParser.parseATC(ATC_FILE);
