@@ -57,18 +57,13 @@ public class ATCParser {
         this.model = model;
     }
 
-    public void parse(String pathFile) {
-        model.read(pathFile);
-    }
-
     /**
      * Parses with Jena the atc file and create atc object
      * */
     public List<ATC> parseATC(String pathFile) {
-        // model.read(pathFile);
-        this.model = RDFDataMgr.loadModel(pathFile);
+         this.model = RDFDataMgr.loadModel(pathFile);
         // each ATC code has the rdfs:label property, so we are sure to retrieve
-        // all code
+        // all codes
         Set<Resource> resources = this.model.listResourcesWithProperty(RDFS.label).toSet();
         // we have all the resources, each is defined by the code
         for (Resource resource : resources) {
@@ -122,76 +117,11 @@ public class ATCParser {
         return result;
     }
 
-    public Directory createIndex() throws IOException {
-        NorwegianAnalyzer analyzer = new NorwegianAnalyzer(Version.LUCENE_40);
-//        Directory index = new RAMDirectory();
-        Directory index =  FSDirectory.open(new File("data/index"));  // disk index storage
-
-        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
-        IndexWriter w = new IndexWriter(index, config);
-        for (ATC atc : this.atcs) {
-            this.addATCDoc(w, atc);
-        }
-        w.close();
-        return index;
-    }
-
     public List<ATC> getAtcs() {
         return atcs;
     }
 
     public void setAtcs(List<ATC> atcs) {
         this.atcs = atcs;
-    }
-
-    private void addATCDoc(IndexWriter w, ATC atc) throws IOException {
-        
-        String code = atc.getCode();
-        String label = atc.getLabel();
-
-        Document doc = new Document();
-        FieldType type = new FieldType();
-        type.setIndexed(true);
-        type.setStored(true);
-        type.setStoreTermVectors(true);
-        type.setTokenized(true);
-        Field fieldLabel = new Field("label", label, type);
-
-        doc.add(fieldLabel);
-
-        // use a string field for because we don't want it tokenized
-        doc.add(new StringField("code", code, Field.Store.YES));
-        w.addDocument(doc);
-    }
-    
-    public void query(String queryString, String fieldToQuery, Directory index) throws IOException {
-        Query q = null;
-        try {
-            q = new QueryParser(Version.LUCENE_40, fieldToQuery, new NorwegianAnalyzer(Version.LUCENE_40))
-                            .parse(queryString);
-        } catch (org.apache.lucene.queryparser.classic.ParseException e) {
-            e.printStackTrace();
-        }
-        Directory index2 =  FSDirectory.open(new File("data/index"));  // disk index storage
-
-        // 3. search
-        int hitsPerPage = 100;
-        IndexReader reader = DirectoryReader.open(index2);
-        IndexSearcher searcher = new IndexSearcher(reader);
-        TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);
-
-        searcher.search(q, collector);
-        ScoreDoc[] hits = collector.topDocs().scoreDocs;
-
-        // 4. display results
-        System.out.println("Found " + hits.length + " hits.");
-        for (int i = 0; i < hits.length; i++) {
-            int docId = hits[i].doc;
-            float score = hits[i].score;
-            Document d = searcher.doc(docId);
-//            System.out.println((score) + ". " + "CODE COMPACTED: " + d.get("code_compacted") + "\t" + "LABEL: "
-//                            + d.get("label") + d.get("extra"));
-            System.out.println((score) + "."+ "Code: " + d.get("code")+"\t Label: "+d.get("label"));
-        }
-    }
+    }  
 }
