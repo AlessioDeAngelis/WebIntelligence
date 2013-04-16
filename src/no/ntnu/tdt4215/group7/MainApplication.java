@@ -43,8 +43,7 @@ public class MainApplication {
         // e.printStackTrace();
         // }
 
-        String queryString = "Eva Andersen er en skoleelev som har hatt insulin diabetes mellitus i 3 år.";
-
+String queryString="Har hostet mye, og har fått opp en del slim som har vært grønt av farge og føler at der har vært noe i brystet";
         ATCParser atcParser = new ATCParser();
         atcParser.parseATC(ATC_FILE);
         Directory index = null;

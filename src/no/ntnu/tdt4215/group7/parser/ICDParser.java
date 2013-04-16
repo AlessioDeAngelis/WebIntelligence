@@ -41,13 +41,13 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
-public class OwlParser {
+public class ICDParser {
 
     private OntModel model;
     private Map<String, OntProperty> mapOntProperties;
     private List<ICD> icds;
 
-    public OwlParser() {
+    public ICDParser() {
         this.model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM, null);
         this.setMapOntProperties(new HashMap<String, OntProperty>());
         this.icds = new ArrayList<ICD>();

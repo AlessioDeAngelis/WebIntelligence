@@ -1,5 +1,6 @@
 package no.ntnu.tdt4215.group7.parser;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
@@ -122,7 +124,9 @@ public class ATCParser {
 
     public Directory createIndex() throws IOException {
         NorwegianAnalyzer analyzer = new NorwegianAnalyzer(Version.LUCENE_40);
-        Directory index = new RAMDirectory();
+//        Directory index = new RAMDirectory();
+        Directory index =  FSDirectory.open(new File("data/index"));  // disk index storage
+
         IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
         IndexWriter w = new IndexWriter(index, config);
         for (ATC atc : this.atcs) {
@@ -168,10 +172,11 @@ public class ATCParser {
         } catch (org.apache.lucene.queryparser.classic.ParseException e) {
             e.printStackTrace();
         }
+        Directory index2 =  FSDirectory.open(new File("data/index"));  // disk index storage
 
         // 3. search
         int hitsPerPage = 100;
-        IndexReader reader = DirectoryReader.open(index);
+        IndexReader reader = DirectoryReader.open(index2);
         IndexSearcher searcher = new IndexSearcher(reader);
         TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);
 
