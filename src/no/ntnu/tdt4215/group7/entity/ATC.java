@@ -1,4 +1,4 @@
-package no.ntnu.tdt4215.group7;
+package no.ntnu.tdt4215.group7.entity;
 
 import java.util.ArrayList;
 import java.util.List;

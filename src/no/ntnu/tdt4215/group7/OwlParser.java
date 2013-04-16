@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import no.ntnu.tdt4215.group7.entity.ICD;
+
 import org.apache.lucene.analysis.no.NorwegianAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -94,12 +96,6 @@ public class OwlParser {
         } else {
             System.out.println("No vcards were found in the database");
         }
-        // StmtIterator it = resources.get(0).listProperties();
-        // while(it.hasNext()){
-        // Statement stm = it.next();
-        // System.out.println(stm.getString());
-        // }
-        // System.out.println(resources.get(0).listProperties());
         return resources;
     }
 
@@ -114,7 +110,7 @@ public class OwlParser {
     /*
      * From the resource to ICD object
      */
-    public Directory createICDObjects(List<Resource> resources) throws IOException {
+    public void createICDObjects(List<Resource> resources) throws IOException {
         NorwegianAnalyzer analyzer = new NorwegianAnalyzer(Version.LUCENE_40);
         Directory index = new RAMDirectory();
         IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
@@ -172,7 +168,6 @@ public class OwlParser {
             icd.setSubclass(subclassString);
             this.icds.add(icd);
         }
-        return index;
     }
     
     /*

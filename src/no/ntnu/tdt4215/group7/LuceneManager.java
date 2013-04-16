@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.List;
 
 
+import no.ntnu.tdt4215.group7.entity.ICD;
+
 import org.apache.lucene.analysis.no.NorwegianAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -35,7 +37,7 @@ public class LuceneManager {
         Directory index =  FSDirectory.open(new File("data/index"));  // disk index storage
         IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
         IndexWriter w2 = new IndexWriter(index, config);
-        this.setIndexWriter(w);
+//        this.setIndexWriter(w2);
         
         Document doc = new Document();
         System.out.println(icd.getCode_compacted());

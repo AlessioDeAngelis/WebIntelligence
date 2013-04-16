@@ -1,5 +1,6 @@
 package no.ntnu.tdt4215.group7;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,7 +8,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import no.ntnu.tdt4215.group7.entity.ATC;
+
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.lucene.analysis.no.NorwegianAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopScoreDocCollector;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.util.Version;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.ontology.OntModel;
@@ -71,6 +91,9 @@ public class ATCParser {
             List<String> subClassOf = new ArrayList<String>();
             // we take all the statement triples related to the resource
             List<Statement> resourceStatements = resource.listProperties().toList();
+            Set<String> labelTerms = new HashSet<String>(); // we use the set
+                                                            // for not having
+                                                            // duplicated terms
             for (Statement statement : resourceStatements) {
                 // the resource is always the object of these triples
                 Node predicate = statement.asTriple().getPredicate();
@@ -78,25 +101,97 @@ public class ATCParser {
                 String predicateString = predicate.getLocalName();
                 if (predicateString != null && predicateString.equals("label")) {
                     // some resources have more than one label
-                    label += object.toString() + " ";
+                    labelTerms.add(parseTheLabel(object.toString()));
                 }
                 if (predicateString != null && predicateString.equals("subClassOf")) {
                     subClassOf.add(object.getLocalName());
                 }
             }
+            for (String term : labelTerms) {
+                label += term + " ";
+            }
             System.out.println(label);
             atc.setCode(atcCode);
-            // according to the label we prefer the translation in norwegian
-            atc.setLabel(parseTheLabel(label));
+            atc.setLabel(label);
             atc.setSubClassOf(subClassOf);
             this.atcs.add(atc);
         }
         return this.atcs;
     }
 
+    /**
+     * Extract
+     * */
     private String parseTheLabel(String label) {
         String result = "";
-//        result = label.split(regex)
+        result = label.replaceAll("\\^\\^http://.*|(\\@no)", "");// to remove
+                                                                 // http and @no
+                                                                 // annotations
+        result = result.substring(1, result.length() - 1);// to remove the first
+                                                          // and last "
+        result = result.toLowerCase();
         return result;
-    } 
+    }
+
+    public Directory createIndex() throws IOException {
+        NorwegianAnalyzer analyzer = new NorwegianAnalyzer(Version.LUCENE_40);
+        Directory index = new RAMDirectory();
+        IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
+        IndexWriter w = new IndexWriter(index, config);
+        for (ATC atc : this.atcs) {
+            this.addATCDoc(w, atc);
+        }
+        w.close();
+        return index;
+    }
+
+    private void addATCDoc(IndexWriter w, ATC atc) throws IOException {
+        
+        String code = atc.getCode();
+        String label = atc.getLabel();
+
+        Document doc = new Document();
+        FieldType type = new FieldType();
+        type.setIndexed(true);
+        type.setStored(true);
+        type.setStoreTermVectors(true);
+        type.setTokenized(true);
+        Field fieldLabel = new Field("label", label, type);
+
+        doc.add(fieldLabel);
+
+        // use a string field for because we don't want it tokenized
+        doc.add(new StringField("code", code, Field.Store.YES));
+        w.addDocument(doc);
+    }
+    
+    public void query(String queryString, String fieldToQuery, Directory index) throws IOException {
+        Query q = null;
+        try {
+            q = new QueryParser(Version.LUCENE_40, fieldToQuery, new NorwegianAnalyzer(Version.LUCENE_40))
+                            .parse(queryString);
+        } catch (org.apache.lucene.queryparser.classic.ParseException e) {
+            e.printStackTrace();
+        }
+
+        // 3. search
+        int hitsPerPage = 100;
+        IndexReader reader = DirectoryReader.open(index);
+        IndexSearcher searcher = new IndexSearcher(reader);
+        TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);
+
+        searcher.search(q, collector);
+        ScoreDoc[] hits = collector.topDocs().scoreDocs;
+
+        // 4. display results
+        System.out.println("Found " + hits.length + " hits.");
+        for (int i = 0; i < hits.length; i++) {
+            int docId = hits[i].doc;
+            float score = hits[i].score;
+            Document d = searcher.doc(docId);
+//            System.out.println((score) + ". " + "CODE COMPACTED: " + d.get("code_compacted") + "\t" + "LABEL: "
+//                            + d.get("label") + d.get("extra"));
+            System.out.println((score) + "."+ "Code: " + d.get("code")+"\t Label: "+d.get("label"));
+        }
+    }
 }
