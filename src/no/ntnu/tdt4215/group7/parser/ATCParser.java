@@ -40,31 +40,19 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class ATCParser {
-    private OntModel model;
-    private Model mod;
-    private Map<String, OntProperty> mapOntProperties;
+    private Model model;
     private List<ATC> atcs;
 
     public ATCParser() {
-        this.model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM, null);
-        this.mapOntProperties = new HashMap<String, OntProperty>();
         this.atcs = new ArrayList<ATC>();
     }
 
-    public OntModel getModel() {
+    public Model getModel() {
         return model;
     }
 
-    public void setModel(OntModel model) {
+    public void setModel(Model model) {
         this.model = model;
-    }
-
-    public Map<String, OntProperty> getMapOntProperties() {
-        return mapOntProperties;
-    }
-
-    public void setMapOntProperties(Map<String, OntProperty> mapOntProperties) {
-        this.mapOntProperties = mapOntProperties;
     }
 
     public void parse(String pathFile) {
@@ -76,10 +64,10 @@ public class ATCParser {
      * */
     public List<ATC> parseATC(String pathFile) {
         // model.read(pathFile);
-        this.mod = RDFDataMgr.loadModel(pathFile);
+        this.model = RDFDataMgr.loadModel(pathFile);
         // each ATC code has the rdfs:label property, so we are sure to retrieve
         // all code
-        Set<Resource> resources = mod.listResourcesWithProperty(RDFS.label).toSet();
+        Set<Resource> resources = this.model.listResourcesWithProperty(RDFS.label).toSet();
         // we have all the resources, each is defined by the code
         for (Resource resource : resources) {
             ATC atc = new ATC();
@@ -143,6 +131,14 @@ public class ATCParser {
         }
         w.close();
         return index;
+    }
+
+    public List<ATC> getAtcs() {
+        return atcs;
+    }
+
+    public void setAtcs(List<ATC> atcs) {
+        this.atcs = atcs;
     }
 
     private void addATCDoc(IndexWriter w, ATC atc) throws IOException {
