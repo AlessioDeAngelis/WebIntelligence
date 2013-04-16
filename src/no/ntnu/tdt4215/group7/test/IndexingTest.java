@@ -3,6 +3,7 @@ package no.ntnu.tdt4215.group7.test;
 import java.io.IOException;
 import java.util.List;
 
+import no.ntnu.tdt4215.group7.App;
 import no.ntnu.tdt4215.group7.entity.ATC;
 import no.ntnu.tdt4215.group7.entity.ICD;
 import no.ntnu.tdt4215.group7.indexer.ATCIndexer;
@@ -31,7 +32,7 @@ public class IndexingTest {
         List<ATC> atcs = atcParser.parseATC(Paths.ATC_FILE);
         ATCIndexer atcIndexer = new ATCIndexer(Paths.ATC_INDEX_DIRECTORY, atcs);
         // index must be created only once or you will have duplicates
-        System.out.println("ICD Indexing start");
+        System.out.println("ATC Indexing start");
         long start = System.currentTimeMillis();
         Directory index = atcIndexer.createIndex();
         System.out.println("ATC Indexing done in " + (System.currentTimeMillis() - start) + " msec");
@@ -54,7 +55,6 @@ public class IndexingTest {
         result = icdQueryEngine.lookup(queryString, index);
         for (String s : result) {
             System.out.println(s);
-        }
-
+        }        
     }
 }
