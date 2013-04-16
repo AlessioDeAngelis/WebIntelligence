@@ -6,6 +6,7 @@ import java.util.Map;
 
 import no.ntnu.tdt4215.group7.entity.CodeType;
 import no.ntnu.tdt4215.group7.entity.MedDocument;
+import no.ntnu.tdt4215.group7.parser.ATCParser;
 import no.ntnu.tdt4215.group7.utils.Paths;
 
 import org.apache.lucene.store.Directory;
