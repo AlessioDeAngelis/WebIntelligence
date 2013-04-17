@@ -43,7 +43,7 @@ public class FileServiceImpl implements FileService {
 				masterList.add(path + "/L/" + file.getName());
 			}
 		}
-		
+
 		System.out.println(cnt + " Files loaded from " + path);
 
 		File[] fileListT = new File(path + "/T/").listFiles();
@@ -71,7 +71,9 @@ public class FileServiceImpl implements FileService {
 		File[] fileListL = new File(Paths.PATIENT_DATA_DIR).listFiles();
 
 		for (File file : fileListL) {
-			results.add(Paths.PATIENT_DATA_DIR + "/" + file.getName());
+			if (file.getName().matches(".*\\.xml$") && file.isFile()) {
+				results.add(Paths.PATIENT_DATA_DIR + "/" + file.getName());
+			}
 		}
 		// TODO Auto-generated method stub
 		return results;

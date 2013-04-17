@@ -39,7 +39,7 @@ public class ICDParser {
         return this.icds;
     }
 
-    public Map<String, OntProperty> mapOntProperties(String pathFile) {
+    private Map<String, OntProperty> mapOntProperties(String pathFile) {
         model.read(pathFile);
         Map<String, OntProperty> map = new HashMap<String, OntProperty>();
         ExtendedIterator<OntProperty> i = model.listAllOntProperties();
@@ -55,7 +55,7 @@ public class ICDParser {
         return map;
     }
 
-    public List<Resource> listResourcesWithProperty() {
+    private List<Resource> listResourcesWithProperty() {
         // select all the resources with a VCARD.FN property
 
         ResIterator iter = model.listResourcesWithProperty(this.mapOntProperties.get("code_compacted"));
@@ -82,7 +82,7 @@ public class ICDParser {
     /*
      * From the resource to ICD object
      */
-    public List<ICD> createICDObjects() throws IOException {
+    private List<ICD> createICDObjects() throws IOException {
         List<Resource> resources = new ArrayList<Resource>();
         // each resource has the property rdfs:label, so we are sure that we
         // list

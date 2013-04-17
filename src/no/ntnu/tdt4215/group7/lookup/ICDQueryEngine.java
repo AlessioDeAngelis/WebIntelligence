@@ -39,7 +39,8 @@ public class ICDQueryEngine implements QueryEngine {
             q = new QueryParser(Version.LUCENE_40, fieldToQuery, new NorwegianAnalyzer(Version.LUCENE_40))
                             .parse(queryString);
         } catch (org.apache.lucene.queryparser.classic.ParseException e) {
-            e.printStackTrace();
+        	System.out.println("Problematic query: " + queryString);
+            //FIXME e.printStackTrace();
         }
 
         // 3. search
@@ -52,7 +53,7 @@ public class ICDQueryEngine implements QueryEngine {
         ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
         // 4. display results
-        System.out.println("Found " + hits.length + " hits.");
+        //FIXME System.out.println("Found " + hits.length + " hits.");
         for (int i = 0; i < hits.length; i++) {
             int docId = hits[i].doc;
             float score = hits[i].score;

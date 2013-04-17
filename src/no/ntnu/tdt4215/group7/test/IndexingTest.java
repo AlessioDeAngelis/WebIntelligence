@@ -23,7 +23,7 @@ public class IndexingTest extends TestCase {
 	public static final String ICD10_FILE = Paths.ICD10_FILE;
 	public static final String ATC_FILE = Paths.ATC_FILE;
 	
-	String queryString = "diabetes insulin";
+	String queryString = "Hun har en bror som også har diabetes og som har brukt insulin i flere år ";
 
 	@Test
 	public void testAtcIndex() throws IOException {

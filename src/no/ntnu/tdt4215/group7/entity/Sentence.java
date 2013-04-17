@@ -67,21 +67,23 @@ public class Sentence {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		
+		sb.append("<sentence><text>");
 		sb.append(getText());
+		sb.append("</text>");
 		
-		sb.append(" (ICD: ");
-		
-		for(String code : getCodes(CodeType.ICD10)) {
-			sb.append(code).append(", ");
-		}
-		
-		sb.append("ATC: ");
+		sb.append("<icd>");
 		
 		for(String code : getCodes(CodeType.ICD10)) {
-			sb.append(code).append(", ");
+			sb.append("<code>").append(code).append("</code>");
 		}
 		
-		sb.append(")");
+		sb.append("</icd><atc>");
+		
+		for(String code : getCodes(CodeType.ATC)) {
+			sb.append("<code>").append(code).append("</code>");
+		}
+		
+		sb.append("</atc></sentence>");
 		
 		return sb.toString();		
 	}

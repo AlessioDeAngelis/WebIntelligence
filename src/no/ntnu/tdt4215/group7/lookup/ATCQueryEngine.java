@@ -52,7 +52,7 @@ public class ATCQueryEngine implements QueryEngine{
         ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
         // 4. display results
-        System.out.println("Found " + hits.length + " hits.");
+        //FIXME System.out.println("Found " + hits.length + " hits.");
         for (int i = 0; i < hits.length; i++) {
             int docId = hits[i].doc;
             float score = hits[i].score;

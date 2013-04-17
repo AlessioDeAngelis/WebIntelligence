@@ -75,11 +75,13 @@ public class MedDocument {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("doc id: " + id + " type: " + type);
+		sb.append("<doc id=\"" + id + "\" type=\"" + type + "\">");
 		
 		for(Sentence sentence : getSentences()) {
 			sb.append(sentence);
 		}
+		
+		sb.append("</doc>");
 		
 		return sb.toString();
 	}

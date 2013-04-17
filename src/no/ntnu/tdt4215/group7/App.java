@@ -1,5 +1,8 @@
 package no.ntnu.tdt4215.group7;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +18,9 @@ import no.ntnu.tdt4215.group7.entity.CodeType;
 import no.ntnu.tdt4215.group7.entity.MedDocument;
 import no.ntnu.tdt4215.group7.indexer.ATCIndexer;
 import no.ntnu.tdt4215.group7.indexer.ICDIndexer;
+import no.ntnu.tdt4215.group7.lookup.ATCQueryEngine;
 import no.ntnu.tdt4215.group7.lookup.CodeAssigner;
+import no.ntnu.tdt4215.group7.lookup.ICDQueryEngine;
 import no.ntnu.tdt4215.group7.lookup.QueryEngine;
 import no.ntnu.tdt4215.group7.parser.ATCParser;
 import no.ntnu.tdt4215.group7.parser.BookParser;
@@ -29,11 +34,13 @@ import no.ntnu.tdt4215.group7.utils.Paths;
 
 import org.apache.lucene.store.Directory;
 
+import com.cedarsoftware.util.io.JsonWriter;
+
 public class App implements Runnable {
 	
 	// CODE PARSERS
-	ICDParser icdParser;
-	ATCParser atcParser;
+	final ICDParser icdParser;
+	final ATCParser atcParser;
 
 	// FILE SERVICE
 	FileService fileService;
@@ -42,7 +49,8 @@ public class App implements Runnable {
 	MatchingService matchingService;
 
 	// QUERY ENGINE
-	QueryEngine queryEngine;
+	final QueryEngine atcQueryEngine;
+	final QueryEngine icdQueryEngine;
 
 	// indices
 	Directory icdIndex;
@@ -61,12 +69,12 @@ public class App implements Runnable {
 		Future<Directory> atcIndexerTask = null;
 		
 		try {
-			icdIndexerTask = executor.submit(new ICDIndexer(Paths.ICD10_FILE,icdParser.createICDObjects()));
+			icdIndexerTask = executor.submit(new ICDIndexer(Paths.ICD10_INDEX_DIRECTORY,icdParser.parseICD(Paths.ICD10_FILE)));
 			atcIndexerTask = executor.submit(new ATCIndexer(Paths.ATC_INDEX_DIRECTORY,atcParser.parseATC(Paths.ATC_FILE))); // TODO IMPLEMENTATION
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		} // TODO IMPLEMENTATION
+		}
 		
 
 		// PATIENT FILES
@@ -105,7 +113,7 @@ public class App implements Runnable {
 					saveDocument(doc);
 
 					// assign ICD and ATC codes to the document
-					executor.submit(new CodeAssigner(doc, icdIndex, atcIndex, queryEngine));
+					executor.submit(new CodeAssigner(doc, icdIndex, atcIndex, icdQueryEngine, atcQueryEngine));
 				}
 			}
 
@@ -125,10 +133,15 @@ public class App implements Runnable {
 		}
 
 		// use matching service to find relevant documents
-
+		
 		matchingService = new MatchingServiceImpl(book);
 		
-		print();
+		try {
+			print();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	private void saveDocument(MedDocument doc) {
@@ -143,18 +156,59 @@ public class App implements Runnable {
 		fileService = new FileServiceImpl();
 		icdParser = new ICDParser();
 		atcParser = new ATCParser();
+		atcQueryEngine = new ATCQueryEngine();
+		icdQueryEngine = new ICDQueryEngine();
 	}
 
-	public void print() {
+	public void print() throws IOException {
 		for (MedDocument note : patientCases) {
-			System.out.println(note);
+			
+			File file = new File("data/output/" + note.getType() + "_" + note.getId() + ".txt");
+			
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+ 
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write("<note>");
+			bw.write("<case>");
+			bw.write(note.toString());
+			bw.write("</case>");
+			bw.write("<relevant>");
+			
+			//System.out.println(note);
 			
 			List<MedDocument> relevant = matchingService.findRelevantDocument(note);
 			
 			for (MedDocument chapt : relevant) {
-				System.out.println(chapt);
+				//System.out.println(chapt);
+				bw.write(chapt.toString());
 			}
+			
+			bw.write("</relevant>");
+			bw.write("</note>");
+			
+			bw.close();
 		}
+	}
+	
+	public static void main(String[] args) {
+		long start = System.currentTimeMillis();
+		App app = new App();
+		
+		Thread d = new Thread(app);
+		
+		d.start();
+		
+		try {
+			d.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println("dur: " + (System.currentTimeMillis() - start)/1000);
 	}
 
 }
