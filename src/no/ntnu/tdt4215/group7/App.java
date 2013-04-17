@@ -1,5 +1,6 @@
 package no.ntnu.tdt4215.group7;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionService;
@@ -12,20 +13,27 @@ import java.util.concurrent.TimeUnit;
 
 import no.ntnu.tdt4215.group7.entity.CodeType;
 import no.ntnu.tdt4215.group7.entity.MedDocument;
-import no.ntnu.tdt4215.group7.indexer.OwlIndexer;
+import no.ntnu.tdt4215.group7.indexer.ATCIndexer;
+import no.ntnu.tdt4215.group7.indexer.ICDIndexer;
 import no.ntnu.tdt4215.group7.lookup.CodeAssigner;
 import no.ntnu.tdt4215.group7.lookup.QueryEngine;
+import no.ntnu.tdt4215.group7.parser.ATCParser;
 import no.ntnu.tdt4215.group7.parser.BookParser;
+import no.ntnu.tdt4215.group7.parser.ICDParser;
 import no.ntnu.tdt4215.group7.parser.PatientCaseParser;
 import no.ntnu.tdt4215.group7.service.FileService;
 import no.ntnu.tdt4215.group7.service.FileServiceImpl;
 import no.ntnu.tdt4215.group7.service.MatchingService;
 import no.ntnu.tdt4215.group7.service.MatchingServiceImpl;
-import no.ntnu.tdt4215.group7.test.IndexingTest;
+import no.ntnu.tdt4215.group7.utils.Paths;
 
 import org.apache.lucene.store.Directory;
 
 public class App implements Runnable {
+	
+	// CODE PARSERS
+	ICDParser icdParser;
+	ATCParser atcParser;
 
 	// FILE SERVICE
 	FileService fileService;
@@ -49,8 +57,17 @@ public class App implements Runnable {
 
 	public void run() {
 		// ICD and ATC indexers
-		Future<Directory> icdIndexerTask = executor.submit(new OwlIndexer(IndexingTest.ICD10_FILE)); // TODO IMPLEMENTATION
-		Future<Directory> atcIndexerTask = executor.submit(new OwlIndexer(IndexingTest.ATC_FILE)); // TODO IMPLEMENTATION
+		Future<Directory> icdIndexerTask = null;
+		Future<Directory> atcIndexerTask = null;
+		
+		try {
+			icdIndexerTask = executor.submit(new ICDIndexer(Paths.ICD10_FILE,icdParser.createICDObjects()));
+			atcIndexerTask = executor.submit(new ATCIndexer(Paths.ATC_INDEX_DIRECTORY,atcParser.parseATC(Paths.ATC_FILE))); // TODO IMPLEMENTATION
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} // TODO IMPLEMENTATION
+		
 
 		// PATIENT FILES
 		List<String> patientFileList = fileService.getPatientFiles();
@@ -110,6 +127,8 @@ public class App implements Runnable {
 		// use matching service to find relevant documents
 
 		matchingService = new MatchingServiceImpl(book);
+		
+		print();
 	}
 
 	private void saveDocument(MedDocument doc) {
@@ -122,6 +141,8 @@ public class App implements Runnable {
 
 	public App() {
 		fileService = new FileServiceImpl();
+		icdParser = new ICDParser();
+		atcParser = new ATCParser();
 	}
 
 	public void print() {
