@@ -39,6 +39,10 @@ public class ParserTest extends TestCase {
 			
 			List<MedDocument> result = parser.call();
 			
+			if(result.size()==0) {
+				System.out.println(file);
+			}
+
 			assertNotNull(result);
 			assertTrue(result.size() > 0);
 			
@@ -61,6 +65,10 @@ public class ParserTest extends TestCase {
 			parser = new PatientCaseParser(file);
 			
 			List<MedDocument> result = parser.call();
+			
+			if(result.size()==0) {
+				System.out.println(file);
+			}
 			
 			assertNotNull(result);
 			assertTrue(result.size() > 0);

@@ -47,7 +47,6 @@ public class BookParser implements DocumentParser {
 				inSentence = false;
 				inHeadline = true; // -->start read heading
 				currentCase = new MedDocument(CodeType.LMHB);
-				results.add(currentCase);
 			} else if (qName.equalsIgnoreCase("footer")) {
 				// --> stop parsing
 				inHeadline = false;
@@ -60,6 +59,9 @@ public class BookParser implements DocumentParser {
 			if (qName.equalsIgnoreCase("h2") || qName.equalsIgnoreCase("h3") || qName.equalsIgnoreCase("h4")) {
 				inHeadline = false; // --> stop read heading
 				inSentence = true; // --> start read body
+				if(currentCase.getSentences().size() > 0) {
+					results.add(currentCase);
+				}
 			}
 		}
 
