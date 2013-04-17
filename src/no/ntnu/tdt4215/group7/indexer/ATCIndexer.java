@@ -2,7 +2,6 @@ package no.ntnu.tdt4215.group7.indexer;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import no.ntnu.tdt4215.group7.entity.ATC;

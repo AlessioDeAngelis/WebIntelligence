@@ -2,8 +2,6 @@ package no.ntnu.tdt4215.group7;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-
 
 import no.ntnu.tdt4215.group7.entity.ICD;
 
@@ -23,11 +21,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
-
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
 
 public class LuceneManager {
     public void indexContact(IndexWriter w, ICD icd) throws IOException {
