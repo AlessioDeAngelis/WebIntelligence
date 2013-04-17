@@ -81,7 +81,7 @@ public class ICDIndexer implements Indexer {
         // use a string field for because we don't want it tokenized
         doc.add(new StringField("code_compacted", codecompacted, Field.Store.YES));
 
-        if (extraInformation != null || !extraInformation.equals("")) {
+        if (extraInformation != null && !extraInformation.equals("")) {
             doc.add(fieldExtra);
         }
         w.addDocument(doc);
