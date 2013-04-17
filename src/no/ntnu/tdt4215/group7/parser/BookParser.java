@@ -22,8 +22,10 @@ public class BookParser implements DocumentParser {
 
 	public static void main(String[] args) throws Exception{
 
+		/** 
+		 * Test for the 2 Folders of the LMHB
+		 */
 		String basePath="C:\\Users\\hengsti\\Dropbox\\uni\\a related stuff\\ausland\\A TDT4215 Web intelligence\\Project\\NLH-html-20130123-01";
-		
 		String pathL = basePath + "\\L\\";
 		List<MedDocument> listL = parseDirectory(pathL);
 		String pathT = basePath + "\\T\\"; 
@@ -45,7 +47,7 @@ public class BookParser implements DocumentParser {
 	}
 
 
-	static List<MedDocument> parseDirectory(String path) throws Exception {
+	public static List<MedDocument> parseDirectory(String path) throws Exception {
 		List<MedDocument> masterList = new ArrayList<MedDocument>();
 		File[] fileListL = new File(path).listFiles();
 		int cnt=0;
