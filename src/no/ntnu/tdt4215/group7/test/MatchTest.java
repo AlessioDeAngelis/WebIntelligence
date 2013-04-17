@@ -2,19 +2,13 @@ package no.ntnu.tdt4215.group7.test;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import no.ntnu.tdt4215.group7.entity.CodeType;
 import no.ntnu.tdt4215.group7.entity.MedDocument;
 import no.ntnu.tdt4215.group7.entity.Sentence;
-import no.ntnu.tdt4215.group7.indexer.ICDIndexer;
-import no.ntnu.tdt4215.group7.service.MatchingServiceImpl;
 import no.ntnu.tdt4215.group7.service.MatchingService;
+import no.ntnu.tdt4215.group7.service.MatchingServiceImpl;
 
-import org.apache.lucene.store.Directory;
 import org.junit.Test;
 
 public class MatchTest {

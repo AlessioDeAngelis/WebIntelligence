@@ -12,16 +12,15 @@ import java.util.concurrent.TimeUnit;
 
 import no.ntnu.tdt4215.group7.entity.CodeType;
 import no.ntnu.tdt4215.group7.entity.MedDocument;
-import no.ntnu.tdt4215.group7.entity.Sentence;
 import no.ntnu.tdt4215.group7.indexer.OwlIndexer;
 import no.ntnu.tdt4215.group7.lookup.CodeAssigner;
 import no.ntnu.tdt4215.group7.lookup.QueryEngine;
 import no.ntnu.tdt4215.group7.parser.BookParser;
 import no.ntnu.tdt4215.group7.parser.PatientCaseParser;
-import no.ntnu.tdt4215.group7.service.MatchingServiceImpl;
 import no.ntnu.tdt4215.group7.service.FileService;
 import no.ntnu.tdt4215.group7.service.FileServiceImpl;
 import no.ntnu.tdt4215.group7.service.MatchingService;
+import no.ntnu.tdt4215.group7.service.MatchingServiceImpl;
 import no.ntnu.tdt4215.group7.test.IndexingTest;
 
 import org.apache.lucene.store.Directory;
