@@ -3,6 +3,8 @@ package no.ntnu.tdt4215.group7.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import no.ntnu.tdt4215.group7.entity.CodeType;
 import no.ntnu.tdt4215.group7.entity.MedDocument;
 import no.ntnu.tdt4215.group7.entity.Sentence;
@@ -11,10 +13,10 @@ import no.ntnu.tdt4215.group7.service.MatchingServiceImpl;
 
 import org.junit.Test;
 
-public class MatchTest {
+public class MatchTest extends TestCase {
 
     @Test
-    public void test() {
+    public void testFakeMatch() {
         MedDocument patientCase1 = new MedDocument(CodeType.CLINICAL_NOTE);
         patientCase1.setId("case 1");
         patientCase1.addSentence("Eva Andersen er en skoleelev som har hatt insulinkrevende diabetes mellitus i 3 år");
@@ -57,20 +59,26 @@ public class MatchTest {
         MatchingService service = new MatchingServiceImpl(book);
 
         List<MedDocument> result = service.findRelevantDocument(patientCase1);
+        
+        assertTrue(result.size() > 0);
 
         System.out.println("done");
 
         for (MedDocument doc : result) {
+        	
+        	assertNotNull(doc);
+        	assertTrue(doc.getSentences().size() > 0);
+        	
             StringBuffer sb = new StringBuffer();
 
             sb.append("Chapter: ").append(doc.getId()).append(" -- ");
-            for (Sentence text : doc.getSentences()) {
-                sb.append(text.getText()).append(", ");
+            for (Sentence sentence : doc.getSentences()) {
+            	assertNotNull(sentence);
+            	assertNotNull(sentence.getText());
+                sb.append(sentence.getText()).append(", ");
             }
 
             System.out.println(sb.toString());
         }
-
     }
-
 }
