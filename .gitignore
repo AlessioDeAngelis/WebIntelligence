@@ -1,2 +1,2 @@
 *.class
-data\index\*
+data/index/*
