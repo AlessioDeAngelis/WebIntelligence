@@ -93,16 +93,17 @@ public class BookParser implements DocumentParser {
 		public void characters(char[] ch, int start, int length) throws SAXException {
 			String sentence = new String(ch, start, length);
 			
-			if (inHeadline && length > 2 && !sentence.matches("^[\\s]*$")) {
+			if (inHeadline && length > 2) {
+				String corrected = sentence.replaceAll("[^a-zA-Z0-9åøæÅØÆ\\s]", "");
 				//String[] names = heading.split("&nbsp;");
 				// only set the id if it start with L or T plus a digit
-					headingBuffer.append(sentence);
+					headingBuffer.append(corrected);
 				//if (names[0].matches("^[T|L]\\d.*")) {
 					//currentChapter.setId(names[0]);
 				//}
-				currentChapter.addSentence(sentence);
-			} else if (inSentence && length > 2 && !sentence.matches("^[\\s]*$")) {
-				currentChapter.addSentence(sentence);
+				currentChapter.addSentence(corrected);
+			} else if (inSentence && length > 2) {
+				currentChapter.addSentence(sentence.replaceAll("[^a-zA-Z0-9åøæÅØÆ\\s]", ""));
 			}
 		}
 	}

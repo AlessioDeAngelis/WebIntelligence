@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Set;
 
 public class MedDocument {
-	
+
 	CodeType type;
-	
+
 	String id;
-	
+
 	List<Sentence> sentences;
 
 	public String getId() {
@@ -26,17 +26,19 @@ public class MedDocument {
 	}
 
 	public void addSentence(String text) {
-		Sentence sentence = new Sentence();
-		sentence.setText(text);
-		
-		this.sentences.add(sentence);
-	}
-	
-	public void addSentences(List<String> sentences) {
-		for(String text : sentences) {
+		if (!text.matches("^[\\s]*$")) {
 			Sentence sentence = new Sentence();
 			sentence.setText(text);
-			
+
+			this.sentences.add(sentence);
+		}
+	}
+
+	public void addSentences(List<String> sentences) {
+		for (String text : sentences) {
+			Sentence sentence = new Sentence();
+			sentence.setText(text);
+
 			this.sentences.add(sentence);
 		}
 	}
@@ -45,44 +47,44 @@ public class MedDocument {
 		this.type = type;
 		sentences = new ArrayList<Sentence>();
 	}
-	
+
 	public Set<String> getAllCodes(CodeType codeType) {
 		Set<String> codeSet = new HashSet<String>();
-		
-		for(Sentence sentence : sentences) {
+
+		for (Sentence sentence : sentences) {
 			codeSet.addAll(sentence.getCodes(codeType));
 		}
-		
+
 		return codeSet;
 	}
-	
+
 	public List<String> getTextByCode(CodeType codeType, String code) {
 		List<String> results = new ArrayList<String>();
-		
-		for(Sentence sentence : sentences) {
-			if(sentence.containsCode(codeType, code)) {
+
+		for (Sentence sentence : sentences) {
+			if (sentence.containsCode(codeType, code)) {
 				results.add(sentence.getText());
 			}
 		}
-		
+
 		return results;
 	}
-	
+
 	public CodeType getType() {
 		return type;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("<doc id=\"" + id + "\" type=\"" + type + "\">");
-		
-		for(Sentence sentence : getSentences()) {
+
+		for (Sentence sentence : getSentences()) {
 			sb.append(sentence);
 		}
-		
+
 		sb.append("</doc>");
-		
+
 		return sb.toString();
 	}
 }

@@ -31,21 +31,15 @@ public class CodeAssigner implements Runnable {
 	public void run() {
 		// iterate over all sentences in MedDocument
 		for (Sentence sentence : doc.getSentences()) {
-			
-			String x = sentence.getText().replaceAll("[^a-zA-Z0-9åøæÅØÆ\\s]", "");
-			
-			if(x.matches("^[\\s]*$")) {
-				continue;
-			}
 
 			// look up ICD10 codes corresponding to this sentence and link them
-			Set<String> icdCodes = icdQueryEngine.lookup(x, icdIndex);
+			Set<String> icdCodes = icdQueryEngine.lookup(sentence.getText(), icdIndex);
 			sentence.addAllCodes(CodeType.ICD10, icdCodes);
 			
 			log.debug(icdCodes.size() + " ICD codes found for " + sentence.getText());
 
 			// look up ATC codes corresponding to this sentence and link them
-			Set<String> atcCodes = atcQueryEngine.lookup(x, atcIndex);
+			Set<String> atcCodes = atcQueryEngine.lookup(sentence.getText(), atcIndex);
 			sentence.addAllCodes(CodeType.ATC, atcCodes);
 			
 			log.debug(atcCodes.size() + " ATC codes found for " + sentence.getText());
