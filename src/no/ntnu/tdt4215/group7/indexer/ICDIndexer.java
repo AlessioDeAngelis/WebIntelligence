@@ -16,6 +16,7 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
 /**
@@ -44,7 +45,8 @@ public class ICDIndexer implements Indexer {
      */
     public Directory createIndex() throws IOException {
         NorwegianAnalyzer analyzer = new NorwegianAnalyzer(Version.LUCENE_40);
-        Directory index = FSDirectory.open(new File(filePath)); // disk index
+        Directory index = new RAMDirectory();
+//        Directory index = FSDirectory.open(new File(filePath)); // disk index
         IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, analyzer);
         IndexWriter w = new IndexWriter(index, config);
         // add ICD codes
