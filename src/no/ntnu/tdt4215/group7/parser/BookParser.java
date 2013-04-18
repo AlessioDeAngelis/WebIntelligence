@@ -55,7 +55,7 @@ public class BookParser implements DocumentParser {
 
 	class ChapterHandler extends DefaultHandler {
 
-		MedDocument currentCase;
+		MedDocument currentChapter;
 		private boolean inHeadline = false;
 		private boolean inSentence = false;
 
@@ -64,7 +64,7 @@ public class BookParser implements DocumentParser {
 			if (qName.equalsIgnoreCase("h2") || qName.equalsIgnoreCase("h3") || qName.equalsIgnoreCase("h4")) {
 				inSentence = false;
 				inHeadline = true; // -->start read heading
-				currentCase = new MedDocument(CodeType.LMHB);
+				currentChapter = new MedDocument(CodeType.LMHB);
 			} else if (qName.equalsIgnoreCase("footer")) {
 				// --> stop parsing
 				inHeadline = false;
@@ -77,8 +77,10 @@ public class BookParser implements DocumentParser {
 			if (qName.equalsIgnoreCase("h2") || qName.equalsIgnoreCase("h3") || qName.equalsIgnoreCase("h4")) {
 				inHeadline = false; // --> stop read heading
 				inSentence = true; // --> start read body
-				if(currentCase.getSentences().size() > 0) {
-					results.add(currentCase);
+				if(currentChapter.getSentences().size() > 0) {
+					results.add(currentChapter);
+				} else {
+					log.warn("Empty MedDoc skipped. Id: " + currentChapter.getId());
 				}
 			}
 		}
@@ -90,12 +92,12 @@ public class BookParser implements DocumentParser {
 				String[] names = heading.split("&nbsp;");
 				// only set the id if it start with L or T plus a digit
 				if (names[0].matches("^[T|L]\\d.*")) {
-					currentCase.setId(names[0]);
+					currentChapter.setId(names[0]);
 				}
-				currentCase.addSentence(heading);
+				currentChapter.addSentence(heading);
 			} else if (inSentence && length > 2) {
 				String sentence = new String(ch, start, length);
-				currentCase.addSentence(sentence);
+				currentChapter.addSentence(sentence);
 			}
 		}
 	}

@@ -57,7 +57,7 @@ public class ICDQueryEngine implements QueryEngine {
         ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
         // 4. display results
-        log.info("Found " + hits.length + " hits.");
+        log.debug("Found " + hits.length + " hits.");
         
         for (int i = 0; i < hits.length; i++) {
             int docId = hits[i].doc;

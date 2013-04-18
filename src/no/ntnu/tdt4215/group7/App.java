@@ -199,6 +199,8 @@ public class App implements Runnable {
 			
 			bw.close();
 		}
+		
+		System.out.println("Written " + patientCases.size() + " files to data/output/");
 	}
 	
 	public static void main(String[] args) {
