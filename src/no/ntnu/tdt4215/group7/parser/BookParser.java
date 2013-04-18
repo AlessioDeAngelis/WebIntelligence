@@ -58,6 +58,8 @@ public class BookParser implements DocumentParser {
 		MedDocument currentChapter;
 		private boolean inHeadline = false;
 		private boolean inSentence = false;
+		
+		private StringBuffer headingBuffer;
 
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
@@ -65,6 +67,7 @@ public class BookParser implements DocumentParser {
 				inSentence = false;
 				inHeadline = true; // -->start read heading
 				currentChapter = new MedDocument(CodeType.LMHB);
+				headingBuffer = new StringBuffer();
 			} else if (qName.equalsIgnoreCase("footer")) {
 				// --> stop parsing
 				inHeadline = false;
@@ -78,6 +81,7 @@ public class BookParser implements DocumentParser {
 				inHeadline = false; // --> stop read heading
 				inSentence = true; // --> start read body
 				if(currentChapter.getSentences().size() > 0) {
+					currentChapter.setId(headingBuffer.toString());
 					results.add(currentChapter);
 				} else {
 					log.warn("Empty MedDoc skipped. Id: " + currentChapter.getId());
@@ -87,16 +91,17 @@ public class BookParser implements DocumentParser {
 
 		@Override
 		public void characters(char[] ch, int start, int length) throws SAXException {
-			if (inHeadline) {
-				String heading = new String(ch, start, length);
-				String[] names = heading.split("&nbsp;");
+			String sentence = new String(ch, start, length);
+			
+			if (inHeadline && length > 2 && !sentence.matches("^[\\s]*$")) {
+				//String[] names = heading.split("&nbsp;");
 				// only set the id if it start with L or T plus a digit
-				if (names[0].matches("^[T|L]\\d.*")) {
-					currentChapter.setId(names[0]);
-				}
-				currentChapter.addSentence(heading);
-			} else if (inSentence && length > 2) {
-				String sentence = new String(ch, start, length);
+					headingBuffer.append(sentence);
+				//if (names[0].matches("^[T|L]\\d.*")) {
+					//currentChapter.setId(names[0]);
+				//}
+				currentChapter.addSentence(sentence);
+			} else if (inSentence && length > 2 && !sentence.matches("^[\\s]*$")) {
 				currentChapter.addSentence(sentence);
 			}
 		}
