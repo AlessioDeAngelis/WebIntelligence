@@ -2,3 +2,4 @@
 bin/*
 data/index/*
 data/output/*
+data/logs/*
