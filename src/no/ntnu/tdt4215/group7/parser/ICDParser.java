@@ -46,9 +46,6 @@ public class ICDParser {
 
         while (i.hasNext()) {
             OntProperty prop = (OntProperty) i.next();
-            // System.out.println("Found prop: " +prop.getLocalName());
-            // System.out.println("private String " + prop.getLocalName() +
-            // ";");
             map.put(prop.getLocalName(), prop);
         }
         this.setMapOntProperties(map);

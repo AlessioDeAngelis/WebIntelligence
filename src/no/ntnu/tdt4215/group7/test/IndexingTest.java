@@ -2,6 +2,7 @@ package no.ntnu.tdt4215.group7.test;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -39,7 +40,7 @@ public class IndexingTest extends TestCase {
 		long start = System.currentTimeMillis();
 		Directory index = atcIndexer.createIndex();
 		System.out.println("ATC Indexing done in " + (System.currentTimeMillis() - start) + " msec");
-		List<String> result = atcQueryEngine.lookup(queryString, index);
+		Set<String> result = atcQueryEngine.lookup(queryString, index);
 		
 		assertTrue(result.size() > 0);
 		
@@ -62,7 +63,7 @@ public class IndexingTest extends TestCase {
 		long start = System.currentTimeMillis();
 		Directory index = icdIndexer.createIndex();
 		System.out.println("ICD Indexing done in " + (System.currentTimeMillis() - start) + " msec");
-		List<String> result = icdQueryEngine.lookup(queryString, index);
+		Set<String> result = icdQueryEngine.lookup(queryString, index);
 		
 		assertTrue(result.size() > 0);
 		

@@ -6,6 +6,7 @@ import java.util.List;
 
 import no.ntnu.tdt4215.group7.entity.ICD;
 
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.no.NorwegianAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -22,6 +23,8 @@ import org.apache.lucene.util.Version;
  * */
 public class ICDIndexer implements Indexer {
 
+	static Logger log = Logger.getLogger("ICDIndexer");
+	
     /**
      * path where to store the index
      * */
@@ -48,6 +51,9 @@ public class ICDIndexer implements Indexer {
         for (ICD icd : this.icds) {
             this.addICDDoc(w, icd);
         }
+        
+        log.info("Index contains: " + icds.size() + " items.");
+        
         w.close();
         return index;
     }

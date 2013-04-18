@@ -6,6 +6,7 @@ import java.util.List;
 
 import no.ntnu.tdt4215.group7.entity.ATC;
 
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.no.NorwegianAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -21,6 +22,8 @@ import org.apache.lucene.util.Version;
  * Index atc files on lucene
  * **/
 public class ATCIndexer implements Indexer{
+	
+	static Logger log = Logger.getLogger("ATCIndexer");
 
     /*
      * the output directory of the index
@@ -48,6 +51,9 @@ public class ATCIndexer implements Indexer{
         for (ATC atc : this.atcs) {
             this.addATCDoc(w, atc);
         }
+        
+        log.info("Index contains: " + atcs.size() + " items.");
+        
         w.close();
         return index;
     }

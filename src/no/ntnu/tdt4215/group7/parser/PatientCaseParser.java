@@ -1,43 +1,53 @@
 package no.ntnu.tdt4215.group7.parser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import no.ntnu.tdt4215.group7.entity.CodeType;
 import no.ntnu.tdt4215.group7.entity.MedDocument;
 
+import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class PatientCaseParser implements DocumentParser {
 	
-	public static final String PATIENT_CASE_FILE = "data/cases.xml";
+	static Logger log = Logger.getLogger("pp");
 	
 	List<MedDocument> results;
 	String filename;
 
 	@Override
-	public List<MedDocument> call() throws Exception {
+	public List<MedDocument> call() {
 		results = new ArrayList<MedDocument>();
 
 		SAXParserFactory factory = SAXParserFactory.newInstance();
-		SAXParser saxParser = factory.newSAXParser();
-
-		saxParser.parse(filename, new PatientXmlHandler());
+		SAXParser saxParser;
+		
+		try {
+			saxParser = factory.newSAXParser();
+			saxParser.parse(filename, new PatientXmlHandler());
+		} catch (ParserConfigurationException e) {
+			log.error(e.getStackTrace());
+		} catch (SAXException e) {
+			log.error(e.getStackTrace());
+		} catch (IOException e) {
+			log.error(e.getStackTrace());
+		}
+		
+		log.info(results.size() + " patient cases found.");
 
 		return results;
 	}
 
 	public PatientCaseParser(String filename) {
 		this.filename = filename;
-	}
-	
-	public PatientCaseParser() {
-		this(PATIENT_CASE_FILE);
 	}
 
 	class PatientXmlHandler extends DefaultHandler {

@@ -1,9 +1,11 @@
 package no.ntnu.tdt4215.group7.entity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Sentence {
 
@@ -26,7 +28,7 @@ public class Sentence {
 		this.text = text;
 	}
 
-	public void addAllCodes(CodeType codeType, List<String> codes) {
+	public void addAllCodes(CodeType codeType, Collection<String> codes) {
 		if (codeMap.get(codeType) == null) {
 			codeMap.put(codeType, new ArrayList<String>());
 		}

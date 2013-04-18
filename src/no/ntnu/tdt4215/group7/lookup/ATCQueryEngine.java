@@ -1,9 +1,10 @@
 package no.ntnu.tdt4215.group7.lookup;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.no.NorwegianAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -17,29 +18,33 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.Version;
 
 public class ATCQueryEngine implements QueryEngine{
+	
+	static Logger log = Logger.getLogger("ql");
+	static Logger problematic = Logger.getLogger("pql");
 
     /**
      * Lookup on ATC index
      * */
     @Override
-    public List<String> lookup(String query, Directory index) {
-        List<String> resultList = new ArrayList<String>();
+    public Set<String> lookup(String query, Directory index) {
+        Set<String> resultList = new HashSet<String>();
         try {
             resultList = query(query,"label",index);
         } catch (IOException e) {
-            e.printStackTrace();
+        	log.info(e.getStackTrace());
         }
         return resultList;
     }
     
-    private List<String> query(String queryString, String fieldToQuery, Directory index) throws IOException {
+    private Set<String> query(String queryString, String fieldToQuery, Directory index) throws IOException {
         Query q = null;
-        List<String> resultList = new ArrayList<String>();
+        Set<String> resultList = new HashSet<String>();
         try {
             q = new QueryParser(Version.LUCENE_40, fieldToQuery, new NorwegianAnalyzer(Version.LUCENE_40))
                             .parse(queryString);
         } catch (org.apache.lucene.queryparser.classic.ParseException e) {
-            e.printStackTrace();
+        	problematic.error(queryString);
+        	log.info(e.getStackTrace());
         }
 
         // 3. search
@@ -52,13 +57,14 @@ public class ATCQueryEngine implements QueryEngine{
         ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
         // 4. display results
-        //FIXME System.out.println("Found " + hits.length + " hits.");
+        log.info("Found " + hits.length + " hits.");
+        
         for (int i = 0; i < hits.length; i++) {
             int docId = hits[i].doc;
             float score = hits[i].score;
             Document d = searcher.doc(docId);
             resultList.add(d.get("code"));
-//            System.out.println((score) + "."+ "Code: " + d.get("code")+"\t Label: "+d.get("label"));
+            log.debug((score) + "."+ "Code: " + d.get("code")+"\t Label: "+d.get("label"));
         }
         return resultList;
     }

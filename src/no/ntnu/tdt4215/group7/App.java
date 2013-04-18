@@ -32,9 +32,12 @@ import no.ntnu.tdt4215.group7.service.MatchingService;
 import no.ntnu.tdt4215.group7.service.MatchingServiceImpl;
 import no.ntnu.tdt4215.group7.utils.Paths;
 
+import org.apache.log4j.Logger;
 import org.apache.lucene.store.Directory;
 
 public class App implements Runnable {
+	
+	static Logger logger = Logger.getLogger(App.class);
 	
 	// CODE PARSERS
 	final ICDParser icdParser;
@@ -42,9 +45,6 @@ public class App implements Runnable {
 
 	// FILE SERVICE
 	FileService fileService;
-
-	// MATCHING SERVICE
-	MatchingService matchingService;
 
 	// QUERY ENGINE
 	final QueryEngine atcQueryEngine;
@@ -69,11 +69,11 @@ public class App implements Runnable {
 		try {
 			icdIndexerTask = executor.submit(new ICDIndexer(Paths.ICD10_INDEX_DIRECTORY,icdParser.parseICD(Paths.ICD10_FILE)));
 			atcIndexerTask = executor.submit(new ATCIndexer(Paths.ATC_INDEX_DIRECTORY,atcParser.parseATC(Paths.ATC_FILE))); // TODO IMPLEMENTATION
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (IOException e) {
+			logger.error(e.getStackTrace());
 		}
 		
+		System.out.println("Indices submited for parsing and indexing execution");
 
 		// PATIENT FILES
 		List<String> patientFileList = fileService.getPatientFiles();
@@ -88,17 +88,23 @@ public class App implements Runnable {
 		for (String file : patientFileList) {
 			completionService.submit(new PatientCaseParser(file));
 		}
-
+		
+		System.out.println("Patient case files submited for parsing execution");
+			
 		// parse all book chapters
 		for (String file : bookFileList) {
 			completionService.submit(new BookParser(file));
 		}
+		
+		System.out.println("Book files submited for parsing execution");
 
 		try {
 			// wait for ICD/ATC indexing
 			icdIndex = icdIndexerTask.get();
 			atcIndex = atcIndexerTask.get();
 
+			System.out.println("Indices ready.");
+			
 			// get ready MedDocs
 			for (int i = 0; i < (patientFileList.size() + bookFileList.size()); i++) {
 
@@ -117,28 +123,30 @@ public class App implements Runnable {
 
 			// shutdown the thread pool and await termination
 			executor.shutdown();
+			
+			System.out.println("Executor closed.");
+			
+			int gone = 0;
 
 			while (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-				System.out.println("Awaiting thread pool termination");
+				System.out.println("Awaiting termination. (" + (gone += 10) + " sec)");
 			}
+			
+			System.out.println("All MedDocs completed.");
 
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
+			logger.error(e.getStackTrace());
 			e.printStackTrace();
 		} catch (ExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getStackTrace());
 		}
 
 		// use matching service to find relevant documents
 		
-		matchingService = new MatchingServiceImpl(book);
-		
 		try {
-			print();
+			writeOutput();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error(e.getStackTrace());
 		}
 	}
 
@@ -158,10 +166,15 @@ public class App implements Runnable {
 		icdQueryEngine = new ICDQueryEngine();
 	}
 
-	public void print() throws IOException {
+	public void writeOutput() throws IOException {
+		
+		MatchingService matchingService = new MatchingServiceImpl(book);
+		
 		for (MedDocument note : patientCases) {
 			
 			File file = new File("data/output/" + note.getType() + "_" + note.getId() + ".xml");
+			
+			logger.info("Writing file: " + file.getName());
 			
 			if (!file.exists()) {
 				file.createNewFile();
@@ -175,12 +188,9 @@ public class App implements Runnable {
 			bw.write("</case>");
 			bw.write("<relevant>");
 			
-			//System.out.println(note);
-			
 			List<MedDocument> relevant = matchingService.findRelevantDocument(note);
 			
 			for (MedDocument chapt : relevant) {
-				//System.out.println(chapt);
 				bw.write(chapt.toString());
 			}
 			

@@ -1,9 +1,10 @@
 package no.ntnu.tdt4215.group7.lookup;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.no.NorwegianAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -18,29 +19,32 @@ import org.apache.lucene.util.Version;
 
 public class ICDQueryEngine implements QueryEngine {
 
-    /**
-     * Lookup on ICD Lucene index
-     * **/
-    @Override
-    public List<String> lookup(String query, Directory index) {
-        List<String> resultList = new ArrayList<String>();
-        try {
-            resultList = query(query, "extra", index);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return resultList;
-    }
+	static Logger log = Logger.getLogger("ql");
+	static Logger problematic = Logger.getLogger("pql");
 
-    private List<String> query(String queryString, String fieldToQuery, Directory index) throws IOException {
-        List<String> resultList = new ArrayList<String>();
+	/**
+	 * Lookup on ICD Lucene index
+	 * **/
+	@Override
+	public Set<String> lookup(String query, Directory index) {
+		Set<String> resultList = new HashSet<String>();
+		try {
+			resultList = query(query, "extra", index);
+		} catch (IOException e) {
+			log.info(e.getStackTrace());
+		}
+		return resultList;
+	}
+
+	private Set<String> query(String queryString, String fieldToQuery, Directory index) throws IOException {
+    	Set<String> resultList = new HashSet<String>();
         Query q = null;
         try {
             q = new QueryParser(Version.LUCENE_40, fieldToQuery, new NorwegianAnalyzer(Version.LUCENE_40))
                             .parse(queryString);
         } catch (org.apache.lucene.queryparser.classic.ParseException e) {
-        	System.out.println("Problematic query: " + queryString);
-            //FIXME e.printStackTrace();
+        	problematic.error(queryString);
+            log.info(e.getStackTrace());
         }
 
         // 3. search
@@ -53,16 +57,16 @@ public class ICDQueryEngine implements QueryEngine {
         ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
         // 4. display results
-        //FIXME System.out.println("Found " + hits.length + " hits.");
+        log.info("Found " + hits.length + " hits.");
+        
         for (int i = 0; i < hits.length; i++) {
             int docId = hits[i].doc;
             float score = hits[i].score;
             Document d = searcher.doc(docId);
-//            System.out.println((score) + ". " + "CODE COMPACTED: " + d.get("code_compacted") + "\t" + "LABEL: "
-//                            + d.get("label") + d.get("extra"));
+           log.debug((score) + ". " + "CODE COMPACTED: " + d.get("code_compacted") + "\t" + "LABEL: "
+                            + d.get("label") + d.get("extra"));
             resultList.add(d.get("code_compacted"));
         }
         return resultList;
     }
-
 }
