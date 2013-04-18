@@ -63,7 +63,7 @@ public class BookParser implements DocumentParser {
 
 		@Override
 		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-			if (qName.equalsIgnoreCase("h2") || qName.equalsIgnoreCase("h3") || qName.equalsIgnoreCase("h4")) {
+			if (qName.equalsIgnoreCase("h1") || qName.equalsIgnoreCase("h2") || qName.equalsIgnoreCase("h3") || qName.equalsIgnoreCase("h4")) {
 				inSentence = false;
 				inHeadline = true; // -->start read heading
 				currentChapter = new MedDocument(CodeType.LMHB);
@@ -77,7 +77,7 @@ public class BookParser implements DocumentParser {
 
 		@Override
 		public void endElement(String uri, String localName, String qName) throws SAXException {
-			if (qName.equalsIgnoreCase("h2") || qName.equalsIgnoreCase("h3") || qName.equalsIgnoreCase("h4")) {
+			if (qName.equalsIgnoreCase("h1") || qName.equalsIgnoreCase("h2") || qName.equalsIgnoreCase("h3") || qName.equalsIgnoreCase("h4")) {
 				inHeadline = false; // --> stop read heading
 				inSentence = true; // --> start read body
 				if(currentChapter.getSentences().size() > 0) {

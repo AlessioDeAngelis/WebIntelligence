@@ -32,7 +32,7 @@ public class ParserTest extends TestCase {
 		assertTrue(files.size() > 0);
 
 		for (String file : files) {
-			System.out.println(file);
+			//System.out.println(file);
 			assertNotNull(file);
 			
 			parser = new BookParser(file);
