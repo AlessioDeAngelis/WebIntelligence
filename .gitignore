@@ -1,2 +1,3 @@
 *.class
 data/index/*
+data/output/*
