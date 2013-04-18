@@ -21,10 +21,13 @@ public class FileServiceImpl implements FileService {
 
 		String simonLoc = "C:\\Users\\Simon\\Dropbox\\NTNU\\WEB_INTELLIGENCE\\PROJECT\\NLH-html-20130123-01";
 		String martinLoc = "C:\\Users\\hengsti\\Dropbox\\uni\\a related stuff\\ausland\\A TDT4215 Web intelligence\\Project\\NLH-html-20130123-01";
-
+		String alessioLoc = "/home/alessio/Scrivania/NLH-html-20130123-01";
 		if (new File(simonLoc).exists()) {
 			path = simonLoc;
-		} else if (new File(martinLoc).exists()) {
+		}else if(new File(alessioLoc).exists()){
+			path = alessioLoc;
+		}
+		else if (new File(martinLoc).exists()) {
 			path = martinLoc;
 		} else if (new File(Paths.LMHB_DIR).exists()) {
 			path = Paths.LMHB_DIR;
