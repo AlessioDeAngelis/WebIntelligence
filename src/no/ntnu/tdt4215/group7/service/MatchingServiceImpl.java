@@ -29,14 +29,20 @@ public class MatchingServiceImpl implements MatchingService {
 			// go through all chapters of the legemiddelhåndboka (LMBH)
 			for (MedDocument chapter : book) {
 				
-				List<String> relevantSentences = new ArrayList<String>();
+				List<Sentence> relevantSentences = new ArrayList<Sentence>();
 				
 				// go through all sentences in this chapter
 				for (Sentence sentence : chapter.getSentences()) {
 					// if any of the sentence matches the input sentence
-					if (sentence.match(inputSentence)) {
+					if (sentence.hasMmatch(inputSentence)) {
 						// add it to list of relevant sentences
-						relevantSentences.add(sentence.getText());
+						Sentence s = new Sentence();
+						s.setText(sentence.getText());
+						
+						s.addAllCodes(CodeType.ICD10, sentence.getMatchingCodes(inputSentence, CodeType.ICD10));
+						s.addAllCodes(CodeType.ATC, sentence.getMatchingCodes(inputSentence, CodeType.ATC));
+						
+						relevantSentences.add(s);
 					}
 				}
 
@@ -46,7 +52,7 @@ public class MatchingServiceImpl implements MatchingService {
 																				// hardcoded
 					// add sentences and chapter id to result document
 					relevantDoc.setId(chapter.getId());
-					relevantDoc.addSentences(relevantSentences);
+					relevantDoc.getSentences().addAll(relevantSentences);
 
 					// put the document to results
 					results.add(relevantDoc);

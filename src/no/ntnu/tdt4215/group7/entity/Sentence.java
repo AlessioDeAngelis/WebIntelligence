@@ -47,7 +47,7 @@ public class Sentence {
 		return codeMap.get(codeType).contains(code); //FIXME
 	}
 
-	public boolean match(Sentence input) {
+	public boolean hasMmatch(Sentence input) {
 		// check all the code lists in the code map
 		for (CodeType codeType : CodeType.values()) {
 			// some codes don't have code lists
@@ -61,6 +61,20 @@ public class Sentence {
 			}
 		}
 		return false;
+	}
+	
+	public List<String> getMatchingCodes(Sentence input, CodeType codeType) {
+		
+		List<String> common = new ArrayList<String>();
+
+		// return true, if input sentence contains any of the codes from this sentence
+		for (String code : this.getCodes(codeType)) {
+			if(input.containsCode(codeType, code)) {
+				common.add(code);
+			}
+		}
+		
+		return common;
 	}
 	
 	@Override
