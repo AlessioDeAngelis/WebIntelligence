@@ -34,8 +34,6 @@ import no.ntnu.tdt4215.group7.utils.Paths;
 
 import org.apache.lucene.store.Directory;
 
-import com.cedarsoftware.util.io.JsonWriter;
-
 public class App implements Runnable {
 	
 	// CODE PARSERS
@@ -163,7 +161,7 @@ public class App implements Runnable {
 	public void print() throws IOException {
 		for (MedDocument note : patientCases) {
 			
-			File file = new File("data/output/" + note.getType() + "_" + note.getId() + ".txt");
+			File file = new File("data/output/" + note.getType() + "_" + note.getId() + ".xml");
 			
 			if (!file.exists()) {
 				file.createNewFile();
