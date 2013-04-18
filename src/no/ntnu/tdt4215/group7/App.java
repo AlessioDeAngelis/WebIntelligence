@@ -62,6 +62,8 @@ public class App implements Runnable {
 			.getRuntime().availableProcessors());
 
 	public void run() {
+		long start = System.currentTimeMillis();
+		
 		// ICD and ATC indexers
 		Future<Directory> icdIndexerTask = null;
 		Future<Directory> atcIndexerTask = null;
@@ -73,7 +75,7 @@ public class App implements Runnable {
 			logger.error(e.getStackTrace());
 		}
 		
-		System.out.println("Indices submited for parsing and indexing execution");
+		System.out.println("Indices submited for parsing and indexing execution. " + (System.currentTimeMillis() - start)/1000);
 
 		// PATIENT FILES
 		List<String> patientFileList = fileService.getPatientFiles();
@@ -89,21 +91,21 @@ public class App implements Runnable {
 			completionService.submit(new PatientCaseParser(file));
 		}
 		
-		System.out.println("Patient case files submited for parsing execution");
+		System.out.println("Patient case files submited for parsing execution. " + (System.currentTimeMillis() - start)/1000);
 			
 		// parse all book chapters
 		for (String file : bookFileList) {
 			completionService.submit(new BookParser(file));
 		}
 		
-		System.out.println("Book files submited for parsing execution");
+		System.out.println("Book files submited for parsing execution. " + (System.currentTimeMillis() - start)/1000);
 
 		try {
 			// wait for ICD/ATC indexing
 			icdIndex = icdIndexerTask.get();
 			atcIndex = atcIndexerTask.get();
 
-			System.out.println("Indices ready.");
+			System.out.println("Indices ready. " + (System.currentTimeMillis() - start)/1000);
 			
 			// get ready MedDocs
 			for (int i = 0; i < (patientFileList.size() + bookFileList.size()); i++) {
@@ -124,15 +126,13 @@ public class App implements Runnable {
 			// shutdown the thread pool and await termination
 			executor.shutdown();
 			
-			System.out.println("Executor closed.");
+			System.out.println("Executor closed. " + (System.currentTimeMillis() - start)/1000);
 			
-			int gone = 0;
-
 			while (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-				System.out.println("Awaiting termination. (" + (gone += 10) + " sec)");
+				System.out.println("Awaiting termination. " + (System.currentTimeMillis() - start)/1000);
 			}
 			
-			System.out.println("All MedDocs completed.");
+			System.out.println("All MedDocs completed. " + (System.currentTimeMillis() - start)/1000);
 
 		} catch (InterruptedException e) {
 			logger.error(e.getStackTrace());
@@ -148,6 +148,8 @@ public class App implements Runnable {
 		} catch (IOException e) {
 			logger.error(e.getStackTrace());
 		}
+		
+		System.out.println("Total duration: " + (System.currentTimeMillis() - start)/1000);
 	}
 
 	private void saveDocument(MedDocument doc) {
@@ -204,7 +206,6 @@ public class App implements Runnable {
 	}
 	
 	public static void main(String[] args) {
-		long start = System.currentTimeMillis();
 		App app = new App();
 		
 		Thread d = new Thread(app);
@@ -217,8 +218,6 @@ public class App implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		System.out.println("dur: " + (System.currentTimeMillis() - start)/1000);
 	}
 
 }
