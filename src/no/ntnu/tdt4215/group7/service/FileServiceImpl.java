@@ -19,7 +19,7 @@ public class FileServiceImpl implements FileService {
 
 		String path = null;
 
-		String simonLoc = "C:\\Users\\Simon\\Dropbox\\NTNU\\WEB_INTELLIGENCE\\PROJECT\\NLH-html-20130123-01";
+		String simonLoc = "FIUXMEC:\\Users\\Simon\\Dropbox\\NTNU\\WEB_INTELLIGENCE\\PROJECT\\NLH-html-20130123-01";
 		String martinLoc = "C:\\Users\\hengsti\\Dropbox\\uni\\a related stuff\\ausland\\A TDT4215 Web intelligence\\Project\\NLH-html-20130123-01";
 		String alessioLoc = "/home/alessio/Scrivania/NLH-html-20130123-01";
 		if (new File(simonLoc).exists()) {
