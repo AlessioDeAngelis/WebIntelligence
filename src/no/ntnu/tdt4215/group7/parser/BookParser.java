@@ -81,7 +81,7 @@ public class BookParser implements DocumentParser {
 				inHeadline = false; // --> stop read heading
 				inSentence = true; // --> start read body
 				if(currentChapter.getSentences().size() > 0) {
-					currentChapter.setId(headingBuffer.toString());
+					currentChapter.setId(headingBuffer.toString().replaceAll("\\s{2,}"," ").trim());
 					results.add(currentChapter);
 				} else {
 					log.warn("Empty MedDoc skipped. Id: " + currentChapter.getId());
@@ -94,16 +94,16 @@ public class BookParser implements DocumentParser {
 			String sentence = new String(ch, start, length);
 			
 			if (inHeadline && length > 2) {
-				String corrected = sentence.replaceAll("[^a-zA-Z0-9åøæÅØÆ\\s]", "");
-				//String[] names = heading.split("&nbsp;");
-				// only set the id if it start with L or T plus a digit
-					headingBuffer.append(corrected);
-				//if (names[0].matches("^[T|L]\\d.*")) {
-					//currentChapter.setId(names[0]);
-				//}
+				String corrected = sentence.replaceAll("[^a-zA-Z0-9åøæÅØÆ\\s\\.]+", "");
+				headingBuffer.append(corrected);
+				
+				if(headingBuffer.length() == corrected.length()) {
+					headingBuffer.append(" ");
+				}
+				
 				currentChapter.addSentence(corrected);
 			} else if (inSentence && length > 2) {
-				currentChapter.addSentence(sentence.replaceAll("[^a-zA-Z0-9åøæÅØÆ\\s]", ""));
+				currentChapter.addSentence(sentence.replaceAll("[^a-zA-Z0-9åøæÅØÆ\\s\\.]+", ""));
 			}
 		}
 	}
