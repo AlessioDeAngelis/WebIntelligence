@@ -3,3 +3,8 @@ bin/*
 data/index/*
 data/output/*
 data/logs/*
+
+report/*.aux
+report/*.toc
+report/*.gz
+report/*.log
