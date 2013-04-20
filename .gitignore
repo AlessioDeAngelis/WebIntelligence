@@ -8,3 +8,4 @@ report/*.aux
 report/*.toc
 report/*.gz
 report/*.log
+/bin
