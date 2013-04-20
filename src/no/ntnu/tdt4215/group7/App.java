@@ -63,7 +63,7 @@ public class App implements Runnable {
 	private ExecutorService executor = Executors.newFixedThreadPool(Runtime
 			.getRuntime().availableProcessors());
 
-	private List<MedDocument> goldStandard;
+	private List<MedDocument> goldStandard = new ArrayList<MedDocument>();
 
 	public void run() {
 		long start = System.currentTimeMillis();
