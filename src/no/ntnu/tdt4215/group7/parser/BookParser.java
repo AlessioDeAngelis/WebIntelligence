@@ -92,7 +92,6 @@ public class BookParser implements DocumentParser {
 						log.warn("Empty MedDoc skipped. Id: " + currentChapter.getId());
 					}
 				}
-			
 		}
 
 		@Override
