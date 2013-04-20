@@ -11,13 +11,13 @@ import org.apache.lucene.store.Directory;
 
 public class CodeAssigner implements Runnable {
 	
-	static Logger log = Logger.getLogger("ql");
+	private static Logger log = Logger.getLogger("CodeAssigner");
 	
-	final QueryEngine atcQueryEngine;
-	final QueryEngine icdQueryEngine;
-	final MedDocument doc;
-	final Directory icdIndex;
-	final Directory atcIndex;
+	private final QueryEngine atcQueryEngine;
+	private final QueryEngine icdQueryEngine;
+	private final MedDocument doc;
+	private final Directory icdIndex;
+	private final Directory atcIndex;
 
 	public CodeAssigner(MedDocument doc, Directory icdIndex, Directory atcIndex, QueryEngine icdQueryEngine, QueryEngine atcQueryEngine) {
 		this.doc = doc;

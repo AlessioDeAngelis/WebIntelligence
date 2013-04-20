@@ -18,10 +18,10 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class GoldStandardParser implements DocumentParser {
 
-	static Logger log = Logger.getLogger("GoldStandardParser");
+	private static Logger log = Logger.getLogger("GoldStandardParser");
 
-	List<MedDocument> results;
-	String filename;
+	private List<MedDocument> results;
+	private String filename;
 
 	@Override
 	public List<MedDocument> call() {

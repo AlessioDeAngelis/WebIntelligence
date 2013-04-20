@@ -52,7 +52,8 @@ public class ICDParser {
         return map;
     }
 
-    private List<Resource> listResourcesWithProperty() {
+    @SuppressWarnings("unused")
+	private List<Resource> listResourcesWithProperty() {
         // select all the resources with a VCARD.FN property
 
         ResIterator iter = model.listResourcesWithProperty(this.mapOntProperties.get("code_compacted"));

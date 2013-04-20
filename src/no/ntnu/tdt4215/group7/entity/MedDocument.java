@@ -7,9 +7,9 @@ import java.util.Set;
 
 public class MedDocument {
 
-	CodeType type;
+	private CodeType type;
 
-	String id;
+	private String id;
 
 	private List<Sentence> sentences;
 	

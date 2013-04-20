@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class Sentence {
 
@@ -53,7 +52,7 @@ public class Sentence {
 		// check all the code lists in the code map
 		for (CodeType codeType : CodeType.values()) {
 			// some codes don't have code lists
-			if (codeType.isSkipped()) {
+			if (codeType.isDocumentCode()) {
 				continue;
 			}
 

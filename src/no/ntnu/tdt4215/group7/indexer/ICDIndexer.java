@@ -1,6 +1,5 @@
 package no.ntnu.tdt4215.group7.indexer;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -15,7 +14,6 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 

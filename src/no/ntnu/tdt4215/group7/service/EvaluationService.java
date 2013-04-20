@@ -36,18 +36,22 @@ public class EvaluationService implements Callable<List<EvaluationResult>> {
 			MedDocument goldStandard = goldStandardCollection.get(key);
 			MedDocument patientCase = patientCasesCollection.get(key);
 
-			int truePos = 0;
-			int falsePos = 0;
-			int falseNeg = 0;
+			int truePos = 0; // found right match
+			int falsePos = 0; // found wrong
+			int falseNeg = 0; // not found right match
 			
+			// for each relevant ID from gold standard
 			for(String res : goldStandard.getRelevantIds()) {
 				if(patientCase.containsRelevantId(res)) {
+					// if we find the same id in patient case, we have a right match (true positive)
 					truePos++;
 				} else {
+					// else its a false negative (its falsely missing from correct results)
 					falseNeg++;
 				}
 			}
 			
+			// number of false positives if difference between all and true positives
 			falsePos = patientCase.getRelevantIds().size() - truePos;
 			
 			results.add(new EvaluationResult(key, truePos,falseNeg,falsePos));
