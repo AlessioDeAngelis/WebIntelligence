@@ -4,23 +4,26 @@ public class EvaluationResult {
 
 	private final String idCase;
 
-	int found;
+	private final int truePositive;
 
-	int falseNegative;
+	private final int falseNegative;
 
-	int falsePositive;
+	private final int falsePositive;
 
-	public EvaluationResult(String idCase) {
+	public EvaluationResult(String idCase, int truePositive, int falseNegative, int falsePositive) {
 		super();
 		this.idCase = idCase;
+		this.truePositive = truePositive;
+		this.falseNegative = falseNegative;
+		this.falsePositive = falsePositive;
 	}
 
 	public String getIdCase() {
 		return idCase;
 	}
 
-	public int getFound() {
-		return found;
+	public int getTruePositive() {
+		return truePositive;
 	}
 
 	public int getFalseNegative() {
@@ -29,17 +32,5 @@ public class EvaluationResult {
 
 	public int getFalsePositive() {
 		return falsePositive;
-	}
-
-	public void addFalseNegative() {
-		falseNegative++;
-	}
-	
-	public void addFalsePositive() {
-		falsePositive++;
-	}
-	
-	public void addFound() {
-		found++;
 	}
 }

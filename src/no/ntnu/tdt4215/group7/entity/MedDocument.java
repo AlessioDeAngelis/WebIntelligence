@@ -13,7 +13,7 @@ public class MedDocument {
 
 	private List<Sentence> sentences;
 	
-	private List<String> relevantIds;
+	private Set<String> relevantIds;
 
 	public String getId() {
 		return id;
@@ -54,7 +54,7 @@ public class MedDocument {
 	public MedDocument(CodeType type) {
 		this.type = type;
 		sentences = new ArrayList<Sentence>();
-		relevantIds = new ArrayList<String>();
+		relevantIds = new HashSet<String>();
 	}
 
 	public Set<String> getAllCodes(CodeType codeType) {
@@ -97,7 +97,11 @@ public class MedDocument {
 		return sb.toString();
 	}
 	
-	public List<String> getRelevantIds() {
+	public Set<String> getRelevantIds() {
 		return relevantIds;
+	}
+	
+	public boolean containsRelevantId(String id) {
+		return relevantIds.contains(id);
 	}
 }
