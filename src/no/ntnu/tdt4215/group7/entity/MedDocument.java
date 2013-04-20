@@ -26,7 +26,10 @@ public class MedDocument {
 	public void setId(String id) {
 		this.id = id;
 	}
-
+	/**
+	 * Only added if not only whitespace characters
+	 * @param text
+	 */
 	public void addSentence(String text) {
 		if (!text.matches("^[\\s]*$")) {
 			Sentence sentence = new Sentence();
