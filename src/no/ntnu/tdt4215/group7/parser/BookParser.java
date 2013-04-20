@@ -19,7 +19,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class BookParser implements DocumentParser {
 	
-	static Logger log = Logger.getLogger("bp");
+	static Logger log = Logger.getLogger("BookParser");
 
 	String filename;
 	List<MedDocument> results;

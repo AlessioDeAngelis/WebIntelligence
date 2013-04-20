@@ -11,7 +11,9 @@ public class MedDocument {
 
 	String id;
 
-	List<Sentence> sentences;
+	private List<Sentence> sentences;
+	
+	private List<String> relevantIds;
 
 	public String getId() {
 		return id;
@@ -33,6 +35,12 @@ public class MedDocument {
 			this.sentences.add(sentence);
 		}
 	}
+	
+	public void addRelevantDocId(String text) {
+		if (!text.matches("^[\\s]*$")) {
+			this.relevantIds.add(text);
+		}
+	}
 
 	public void addSentences(List<String> sentences) {
 		for (String text : sentences) {
@@ -46,6 +54,7 @@ public class MedDocument {
 	public MedDocument(CodeType type) {
 		this.type = type;
 		sentences = new ArrayList<Sentence>();
+		relevantIds = new ArrayList<String>();
 	}
 
 	public Set<String> getAllCodes(CodeType codeType) {
@@ -86,5 +95,9 @@ public class MedDocument {
 		sb.append("</doc>");
 
 		return sb.toString();
+	}
+	
+	public List<String> getRelevantIds() {
+		return relevantIds;
 	}
 }

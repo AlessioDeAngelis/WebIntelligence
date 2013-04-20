@@ -16,10 +16,10 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class PatientCaseParser implements DocumentParser {
-	
-	static Logger log = Logger.getLogger("PatientCaseParser");
-	
+public class GoldStandardParser implements DocumentParser {
+
+	static Logger log = Logger.getLogger("GoldStandardParser");
+
 	List<MedDocument> results;
 	String filename;
 
@@ -29,10 +29,10 @@ public class PatientCaseParser implements DocumentParser {
 
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		SAXParser saxParser;
-		
+
 		try {
 			saxParser = factory.newSAXParser();
-			saxParser.parse(filename, new PatientXmlHandler());
+			saxParser.parse(filename, new GoldStandardXmlHandler());
 		} catch (ParserConfigurationException e) {
 			log.error(e.getStackTrace());
 		} catch (SAXException e) {
@@ -40,49 +40,47 @@ public class PatientCaseParser implements DocumentParser {
 		} catch (IOException e) {
 			log.error(e.getStackTrace());
 		}
-		
+
 		log.info(results.size() + " patient cases found.");
 
 		return results;
 	}
 
-	public PatientCaseParser(String filename) {
+	public GoldStandardParser(String filename) {
 		this.filename = filename;
 	}
 
-	class PatientXmlHandler extends DefaultHandler {
+	class GoldStandardXmlHandler extends DefaultHandler {
 
 		MedDocument currentCase;
-		boolean inSentence = false;
+		boolean inResult = false;
 
 		@Override
-		public void startElement(String uri, String localName, String qName,
-				Attributes attributes) throws SAXException {
+		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 			if (qName.equals("case")) {
-				currentCase = new MedDocument(CodeType.CLINICAL_NOTE);
+				currentCase = new MedDocument(CodeType.GOLD_STANDARD);
 				currentCase.setId(attributes.getValue(0));
-			} else if (qName.equals("sentence")) {
-				inSentence = true;
+			} else if (qName.equals("result")) {
+				inResult = true;
 			}
 		}
 
 		@Override
-		public void endElement(String uri, String localName, String qName)
-				throws SAXException {
+		public void endElement(String uri, String localName, String qName) throws SAXException {
 			if (qName.equals("case")) {
 				results.add(currentCase);
-			} else if (qName.equals("sentence")) {
-				inSentence = false;
+			} else if (qName.equals("result")) {
+				inResult = false;
 			}
 		}
 
 		@Override
-		public void characters(char[] ch, int start, int length)
-				throws SAXException {
-			if (inSentence) {
-				String sentence = new String(ch, start, length);
-				currentCase.addSentence(sentence);
+		public void characters(char[] ch, int start, int length) throws SAXException {
+			if (inResult) {
+				String result = new String(ch, start, length);
+				currentCase.addRelevantDocId(result);
 			}
 		}
 	}
+
 }

@@ -1,44 +1,45 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <document>
-    <case id="1">
- 			<result id="1.1">T3.1 Diabetes mellitus</result>
- 			<result id="1.2">L3.1.1 Insulin/insulinanaloger</result>
-    </case>
-    <case id="2">
-			<result id="2.1">T10.2 Obstruktiv lungesykdom</result>
- 			<result id="2.2">T10.2.2 Kronisk obstruktiv lungesykdom (kols)</result> 
-</case>
-    <case id="3">
-			<result id="3.1">T1.10 Alvorlig bakteriell meningitt</result>
-</case>
-    <case id="4">
-			<result id="4.1">T8.3 Koronarsykdom</result>
- 			<result id="4.2">T8.3.2 Ustabil koronarsykdom</result>
- 			<result id="4.3">T8.3.1 Stabil koronarsykdom</result>
-
-</case>
-    <case id="5">     	<!-- (There are no really relevant pharmaceutical treatments for colorectal cancers, - but related symptoms…) -->
-			<result id="5.1">T2.2.1.1 Kolorektalcancer</result>
- 			<result id="5.2">T4.1 Anemier</result>
- 			<result id="5.3">T4.1.1 Jernmangelanemi</result>
-</case>
-    <case id="6">
- 			<result id="6.1">T11.3.2 Tonsilitt</result>
- 			<result id="6.2">T11.3.2.1 Akutt tonsilitt</result>
- 			<result id="6.3">T11.3.2.2 Kronisk tonsilitt</result>
- 			<result id="6.4">T1.3 Mononukleose</result>
- </case>
-    <case id="7">
- 			<result id="7.1">T21 Palliativ behandling</result>
-			<result id="7.2">T21.1.1 Smerter</result>
-			<result id="7.3">T21.1.1.1 Nociceptive smerter</result>
- 			<result id="7.4">L20.1.2.3 Sterkere opioidagonister/-antagonister</result>
- 
- </case>
-    <case id="8"> 			
-    		<result id="8.1">T11.3.2 Tonsilitt</result>
- 			<result id="8.2">T11.3.2.1 Akutt tonsilitt</result>
- 			<result id="8.3">T11.3.2.2. Kronisk tonsilitt</result>
- 			<result id="8.4">T1.3 Mononukleose</result>
- </case>
+	<case id="1">
+		<result id="1.1">T3.1 Diabetes mellitus</result>
+		<result id="1.2">L3.1.1 Insulin/insulinanaloger</result>
+	</case>
+	<case id="2">
+		<result id="2.1">T10.2 Obstruktiv lungesykdom</result>
+		<result id="2.2">T10.2.2 Kronisk obstruktiv lungesykdom (kols)
+		</result>
+	</case>
+	<case id="3">
+		<result id="3.1">T1.10 Alvorlig bakteriell meningitt</result>
+	</case>
+	<case id="4">
+		<result id="4.1">T8.3 Koronarsykdom</result>
+		<result id="4.2">T8.3.2 Ustabil koronarsykdom</result>
+		<result id="4.3">T8.3.1 Stabil koronarsykdom</result>
+	</case>
+	<case id="5">
+		<!-- (There are no really relevant pharmaceutical treatments for colorectal cancers, - but related symptoms…) -->
+		<result id="5.1">T2.2.1.1 Kolorektalcancer</result>
+		<result id="5.2">T4.1 Anemier</result>
+		<result id="5.3">T4.1.1 Jernmangelanemi</result>
+	</case>
+	<case id="6">
+		<result id="6.1">T11.3.2 Tonsilitt</result>
+		<result id="6.2">T11.3.2.1 Akutt tonsilitt</result>
+		<result id="6.3">T11.3.2.2 Kronisk tonsilitt</result>
+		<result id="6.4">T1.3 Mononukleose</result>
+	</case>
+	<case id="7">
+		<result id="7.1">T21 Palliativ behandling</result>
+		<result id="7.2">T21.1.1 Smerter</result>
+		<result id="7.3">T21.1.1.1 Nociceptive smerter</result>
+		<result id="7.4">L20.1.2.3 Sterkere opioidagonister/-antagonister
+		</result>
+	</case>
+	<case id="8">
+		<result id="8.1">T11.3.2 Tonsilitt</result>
+		<result id="8.2">T11.3.2.1 Akutt tonsilitt</result>
+		<result id="8.3">T11.3.2.2. Kronisk tonsilitt</result>
+		<result id="8.4">T1.3 Mononukleose</result>
+	</case>
 </document>

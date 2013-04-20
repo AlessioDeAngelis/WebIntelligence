@@ -24,6 +24,7 @@ import no.ntnu.tdt4215.group7.lookup.ICDQueryEngine;
 import no.ntnu.tdt4215.group7.lookup.QueryEngine;
 import no.ntnu.tdt4215.group7.parser.ATCParser;
 import no.ntnu.tdt4215.group7.parser.BookParser;
+import no.ntnu.tdt4215.group7.parser.GoldStandardParser;
 import no.ntnu.tdt4215.group7.parser.ICDParser;
 import no.ntnu.tdt4215.group7.parser.PatientCaseParser;
 import no.ntnu.tdt4215.group7.service.FileService;
@@ -60,6 +61,8 @@ public class App implements Runnable {
 
 	private ExecutorService executor = Executors.newFixedThreadPool(Runtime
 			.getRuntime().availableProcessors());
+
+	private MedDocument goldStandard;
 
 	public void run() {
 		long start = System.currentTimeMillis();
@@ -98,7 +101,14 @@ public class App implements Runnable {
 			completionService.submit(new BookParser(file));
 		}
 		
+
 		System.out.println("Book files submited for parsing execution. " + (System.currentTimeMillis() - start)/1000);
+		
+		// parse the gold standard
+		
+		completionService.submit(new GoldStandardParser(Paths.GOLD_STANDARD_FILE));
+		
+		System.out.println("Gold standard submitted for parsing execution.  " + (System.currentTimeMillis() - start)/1000);
 
 		try {
 			// wait for ICD/ATC indexing
@@ -149,14 +159,21 @@ public class App implements Runnable {
 			logger.error(e.getStackTrace());
 		}
 		
+		// evaluate against the gold standard
+		
+		
+		System.out.println("Evaluation done. " + (System.currentTimeMillis() - start)/1000);
+		
 		System.out.println("Total duration: " + (System.currentTimeMillis() - start)/1000);
 	}
 
 	private void saveDocument(MedDocument doc) {
 		if (doc.getType() == CodeType.CLINICAL_NOTE) {
 			patientCases.add(doc);
-		} else {
+		} else if (doc.getType() == CodeType.CLINICAL_NOTE) {
 			book.add(doc);
+		} else {
+			goldStandard = doc;
 		}
 	}
 
@@ -174,7 +191,7 @@ public class App implements Runnable {
 		
 		for (MedDocument note : patientCases) {
 			
-			File file = new File("data/output/" + note.getType() + "_" + note.getId() + ".xml");
+			File file = new File(Paths.OUTPUT_DIRECTORY + String.format(Paths.OUTPUT_CASE_FILE_MASK, note.getId()));
 			
 			logger.info("Writing file: " + file.getName());
 			
@@ -206,6 +223,7 @@ public class App implements Runnable {
 	}
 	
 	public static void main(String[] args) {
+		
 		App app = new App();
 		
 		Thread d = new Thread(app);
