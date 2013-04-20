@@ -58,7 +58,7 @@ public class MatchTest extends TestCase {
 
         MatchingService service = new MatchingServiceImpl(book);
 
-        List<MedDocument> result = service.findRelevantDocument(patientCase1);
+        List<MedDocument> result = service.findRelevantDocuments(patientCase1);
         
         assertTrue(result.size() > 0);
 

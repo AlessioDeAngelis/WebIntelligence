@@ -6,6 +6,6 @@ import no.ntnu.tdt4215.group7.entity.MedDocument;
 
 public interface MatchingService {
 
-	public List<MedDocument> findRelevantDocument(MedDocument input);
+	public List<MedDocument> findRelevantDocuments(MedDocument input);
 
 }

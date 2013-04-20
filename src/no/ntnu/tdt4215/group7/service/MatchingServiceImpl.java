@@ -20,7 +20,7 @@ public class MatchingServiceImpl implements MatchingService {
 	 * @see no.ntnu.tdt4215.group7.impl.MatchingServicee#findRelevantDocument(no.ntnu.tdt4215.group7.entity.MedDocument)
 	 */
 	@Override
-	public List<MedDocument> findRelevantDocument(MedDocument input) {
+	public List<MedDocument> findRelevantDocuments(MedDocument input) {
 
 		List<MedDocument> results = new ArrayList<MedDocument>();
 
@@ -48,14 +48,17 @@ public class MatchingServiceImpl implements MatchingService {
 
 				// if we found any hits
 				if (!relevantSentences.isEmpty()) {
-					MedDocument relevantDoc = new MedDocument(CodeType.LMHB); // FIXME
-																				// hardcoded
+					MedDocument relevantDoc = new MedDocument(CodeType.LMHB);
+					
 					// add sentences and chapter id to result document
 					relevantDoc.setId(chapter.getId());
 					relevantDoc.getSentences().addAll(relevantSentences);
 
 					// put the document to results
 					results.add(relevantDoc);
+					
+					// add chapter id to input MedDoc's relevant ids
+					input.getRelevantIds().add(chapter.getId());
 				}
 			}
 		}

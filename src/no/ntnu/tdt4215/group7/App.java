@@ -27,6 +27,7 @@ import no.ntnu.tdt4215.group7.parser.BookParser;
 import no.ntnu.tdt4215.group7.parser.GoldStandardParser;
 import no.ntnu.tdt4215.group7.parser.ICDParser;
 import no.ntnu.tdt4215.group7.parser.PatientCaseParser;
+import no.ntnu.tdt4215.group7.service.EvaluationService;
 import no.ntnu.tdt4215.group7.service.FileService;
 import no.ntnu.tdt4215.group7.service.FileServiceImpl;
 import no.ntnu.tdt4215.group7.service.MatchingService;
@@ -62,7 +63,7 @@ public class App implements Runnable {
 	private ExecutorService executor = Executors.newFixedThreadPool(Runtime
 			.getRuntime().availableProcessors());
 
-	private MedDocument goldStandard;
+	private List<MedDocument> goldStandard;
 
 	public void run() {
 		long start = System.currentTimeMillis();
@@ -153,16 +154,24 @@ public class App implements Runnable {
 
 		// use matching service to find relevant documents
 		
+		MatchingService matchingService = new MatchingServiceImpl(book);
 		try {
-			writeOutput();
+			fileService.writeResults(patientCases, matchingService);
+			System.out.println("Results written. " + (System.currentTimeMillis() - start)/1000);
 		} catch (IOException e) {
-			logger.error(e.getStackTrace());
+			logger.error(e);
 		}
 		
 		// evaluate against the gold standard
 		
+		EvaluationService evalService = new EvaluationService(patientCases, goldStandard);
 		
-		System.out.println("Evaluation done. " + (System.currentTimeMillis() - start)/1000);
+		try {
+			fileService.writeEval(evalService.call());
+			System.out.println("Evaluation written. " + (System.currentTimeMillis() - start)/1000);
+		} catch (IOException e) {
+			logger.error(e);
+		}
 		
 		System.out.println("Total duration: " + (System.currentTimeMillis() - start)/1000);
 	}
@@ -173,7 +182,7 @@ public class App implements Runnable {
 		} else if (doc.getType() == CodeType.CLINICAL_NOTE) {
 			book.add(doc);
 		} else {
-			goldStandard = doc;
+			goldStandard.add(doc);
 		}
 	}
 
@@ -183,43 +192,6 @@ public class App implements Runnable {
 		atcParser = new ATCParser();
 		atcQueryEngine = new ATCQueryEngine();
 		icdQueryEngine = new ICDQueryEngine();
-	}
-
-	public void writeOutput() throws IOException {
-		
-		MatchingService matchingService = new MatchingServiceImpl(book);
-		
-		for (MedDocument note : patientCases) {
-			
-			File file = new File(Paths.OUTPUT_DIRECTORY + String.format(Paths.OUTPUT_CASE_FILE_MASK, note.getId()));
-			
-			logger.info("Writing file: " + file.getName());
-			
-			if (!file.exists()) {
-				file.createNewFile();
-			}
- 
-			FileWriter fw = new FileWriter(file.getAbsoluteFile());
-			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write("<note>");
-			bw.write("<case>");
-			bw.write(note.toString());
-			bw.write("</case>");
-			bw.write("<relevant>");
-			
-			List<MedDocument> relevant = matchingService.findRelevantDocument(note);
-			
-			for (MedDocument chapt : relevant) {
-				bw.write(chapt.toString());
-			}
-			
-			bw.write("</relevant>");
-			bw.write("</note>");
-			
-			bw.close();
-		}
-		
-		System.out.println("Written " + patientCases.size() + " files to data/output/");
 	}
 	
 	public static void main(String[] args) {
