@@ -173,7 +173,7 @@ public class App implements Runnable {
 		// save document to the right collection by code
 		if (doc.getType() == CodeType.CLINICAL_NOTE) {
 			patientCases.add(doc);
-		} else if (doc.getType() == CodeType.CLINICAL_NOTE) {
+		} else if (doc.getType() == CodeType.LMHB) {
 			book.add(doc);
 		} else {
 			goldStandard.add(doc);
