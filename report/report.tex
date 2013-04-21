@@ -27,31 +27,55 @@ Web-intelligence}
 
 \section{Introduction}
 
-This report was created during the Web- Intelligence (TDT4215) course in the spring semester of 2013. It contains information about the mandatory group project. The task was to, automatically suggest relevant treatments and drugs by using doctor's patient notes and an electronic handbook for pharmaceutical interventions. A java application was created using several tools as well as a lot of creativity. You can find a description of the application's architecture, the processing, the limits and the results of the Project. Finally we analyze the results and collect some ideas how to improve the application.
+This report was created during the Web-Intelligence (TDT4215) course in the spring semester of 2013. It contains information about the mandatory group project. The task was to, automatically suggest relevant treatments and drugs by using doctor's patient notes and an electronic handbook for pharmaceutical interventions. A java application was created using several tools as well as a lot of creativity. You can find a description of the application's architecture, the processing, the limits and the results of the project. Finally we analyze the results and collect some ideas how to improve the application.
 
 \section{System architecture}
 
-Since the nature of most of the tasks in this software system is highly time consuming, we decided to take advantage of provided multithreading facilities that Java offers and we implemented the software using Java Executor Framework. This choice made the code a bit more complicated than a code of regular single-threaded application, but we managed to reduce the execution time significantly on multi-processor machine.\footnote{Execution time on a machine with Intel Core i3 (M350 2.27GHz) was reduced by a factor of cca 3.}
-
 Given the fact that our main architectural drivers were short time to market and developer inexperience, we decided to use just basic facilities of chosen frameworks and tools. Spending too much time learning details of tools such as \emph{Jena} and \emph{Lucene} would leave with a little time to make the actual implementation.
 
-As stated above, we are using some tools such as \emph{Jena} and \emph{Lucene}. Their particular use in the application is described below in corresponding chapters. Apart from those tools, we are for example using SAX and Apache Tika for parsing tasks.
+Since the nature of most of the tasks in this software system is highly time consuming, we decided to take advantage of provided multi-threading facilities that Java offers and we implemented the software using \emph{Java Executor Framework}. This choice made the code a bit more complicated than a code of regular single-threaded application, but we managed to reduce the execution time significantly on multi-processor machine.\footnote{Execution time on a machine with Intel Core i3 (M350 2.27GHz) was reduced by a factor of cca 3.}
 
-\section{Components function and role}
-Many tasks occuring in the application share some similarities in behaviour and structure and thus we made the system very modular and easily modifiable. The sequence diagram shown in \ref{fig:seq} displays a naive view over the system. Please note, that \texttt{Indexer}, \texttt{Parser} and \texttt{QueryEngine} are general names for different implementations (ATC files are parsed and indexed differently than ICD files, however the structure of the software component is similar).
+As stated above, we are using some tools such as \emph{Jena} and \emph{Lucene}. Their particular use in the application is described below in corresponding chapters. Apart from those tools, we are for example using \emph{SAX} and \emph{Apache Tika} for parsing tasks.\footnote{http://sax.sourceforge.net/ and http://tika.apache.org/}
+
+Since the team work went in parallel, we decided to make unit test to test each of the unit developed. This made the testing of certain tasks possible at the time even if their testing in the main application would not be possible because of some preceding tasks missing. We used JUnit library to run the tests.\footnote{http://junit.org/}
+
+\subsection{Application flow}
+
+This part presents textual description of application flow. Please refer to the figure \ref{fig:seq} for sequence diagram representation.
 
 \begin{figure}[h!]
-    \label{fig:seq}
     \centering
     \includegraphics[width=1.0\textwidth]{seq}
     \caption{Sequence diagram}
+    \label{fig:seq}
 \end{figure}
+
+In the beginning, the ICD and ATC files are parsed by \texttt{ATCParser} and \texttt{ATCParser} respectively, new tasks (\texttt{ATCIndexer} and \texttt{ICDIndexer}) for indexing  them are created and submitted to the executor.
+
+Directories \texttt{/data/book/} and \texttt{data/patient\_data/} are then scanned for files. For each patient case file a new \texttt{PatientCaseParser} task is submitted to the executor. Same thing happens for book files, the only difference being the parser implementation, which is \texttt{BookParser} in this case. These return collections of \texttt{MedDocument} instances.
+
+After both indexes (ICD and ATC) are created, the application starts to take finished \texttt{MedDocument} instances from completion service and creates \texttt{CodeAssigner} tasks for them and submits them to execution.
+
+In the \texttt{CodeAssigner} service, each sentence in the \texttt{MedDocument} is looked up in both indexes and found hits (ATC/ICD codes) are added to the document. This happens both for patient case documents and book chapters.
+
+After all tasks from the executor are finished (i.e. after all books and patient files are parsed and all \texttt{MedDocument} instances are assigned codes), the application proceeds to matching.
+
+An instance of \texttt{MatchingService} is made and is used to find matches between patient case documents and book chapters. This is done based on common ICD/ATC codes found in both documents. If two documents (one of each kind) have one or more codes in common, the book chapter is marked as relevant to the patient case and its ID is added to the \texttt{relevantIds} set in \texttt{MedDocument}.
+
+After that, patient case documents are written to files in \texttt{data/output/} directory.
+
+In the end, an \texttt{EvaluationService} is instantiated and used to evaluate the output with the gold standard. It checks all patient case documents against their obverse from the gold standard and checks if the correct chapters were found, how many wrong chapters were found and how many are missing. It writes the evaluation result into \texttt{data/output/evaluation.xml} file.
+
+\section{Components function and role}
+Many tasks occurring in the application share some similarities in behaviour and structure and thus we made the system very modular and easily modifiable to accommodate the small differences but large similarities. The sequence diagram shown in \ref{fig:seq} displays a naive view over the system. Please note, that \texttt{Indexer}, \texttt{Parser} and \texttt{QueryEngine} are general names for different implementations (for example ATC files are parsed and indexed differently than ICD files, however the structure of the software component is similar).
 
 \begin{figure}[h!]
   \centering
-    \includegraphics[width=1.0\textwidth]{class}
+    \includegraphics[width=0.6\textwidth]{class}
     \caption{Class diagram}
 \end{figure}
+
+For reuse and modifiability, class \texttt{MedDocument} was created. This can hold an instance of patient case, a chapter from a book or a gold standard patient case. Since these files show similarities (have an id and contain sentences), the system treats them in the same way.
 
 \subsection{Parsing ICD and ATC files}
 
@@ -59,35 +83,35 @@ There are several ways to parse ICD and ATC files to extract information from th
 
 We have chosen a semantic web tool, \emph{Jena}.\footnote{http://jena.apache.org/} As we can read from the website: \emph{Jena is an API for reading, processing and writing RDF data in XML, N-triples and Turtle formats; an ontology API for handling OWL and RDFS ontologies; a rule-based inference engine for reasoning with RDF and OWL data sources; stores to allow large numbers of RDF triples to be efficiently stored on disk}. 
 
-This tool may seems to be a little bit verbose to use, but it lets us handle in a very efficient way both the ontologies, the ICD that is an OWL format and the ATC that is a turtle, without the risk of losing information from them. Moreover, we can have easily access the information about all the rdf graphs: we can keep track for example of the hierarchies, the subclasses, the synonyms and so on. All this extra information may be used to improve our query engine, doing some refinements when the pure textual search is not accurate enough.
+This tool may seems to be a little bit verbose to use, but it lets us handle in a very efficient way both the ontologies, the ICD that is an OWL format and the ATC that is a turtle, without the risk of losing information from them. Moreover, we can have easily access the information about all the RFD graphs: we can keep track for example of the hierarchies, the subclasses, the synonyms and so on. All this extra information may be used to improve our query engine, doing some refinements when the pure textual search is not accurate enough.
 
-When we parse ICDs we store them in java beans the values of the following properties \texttt{code\_compacted} (the code of the disease), \texttt{label} (description of the disease), \texttt{underterm} (extra information about the disease, not every instance has it), \texttt{synonyms} and \texttt{subClassOf}.
-When we parse ATCs we store them in java beans the values of the code, the \texttt{label} and \texttt{subClassOf}.
+When we parse ICDs we store them in Java beans the values of the following properties \texttt{code\_compacted} (the code of the disease), \texttt{label} (description of the disease), \texttt{underterm} (extra information about the disease, not every instance has it), \texttt{synonyms} and \texttt{subClassOf}.
+When we parse ATCs we store them in Java beans the values of the code, the \texttt{label} and \texttt{subClassOf}.
 
 \subsection{Tools for indexing and querying}
-For indexing and querying we are using an information retrieval approach, through a bag of words model. We are using \emph{Lucene} \footnote{http://lucene.apache.org/core}. We read from the Website:\emph{Apache Lucene\TM is a high-performance, full-featured text search engine library written entirely in Java. It is a technology suitable for nearly any application that requires full-text search, especially cross-platform.} Lucene is scaleable, powerful and accurate for using efficient search algorithims.
+For indexing and querying we are using an information retrieval approach, through a bag of words model. For this task, we are using \emph{Lucene}.\footnote{http://lucene.apache.org/core} We read from the Website:\emph{Apache Lucene is a high-performance, full-featured text search engine library written entirely in Java. It is a technology suitable for nearly any application that requires full-text search, especially cross-platform.} Lucene is scalable, powerful and accurate for using efficient search algorithms.
 At the beginning we were trying to create our own information retrieval engine, but we came across several problems. First of all how to deal with Norwegian language, our background is very poor since we are all international students in the group, how to stem correctly words or divide properly the \emph{aggregates} (four, five words merged all together in one). \emph{Lucene} is a library made by experts and their implementation of the \texttt{NorwegianAnalyzer} (with the Porter stemming algorithm), even if maybe not as accurate as the English one, has been revealed very useful for our purposes. Moreover it natively supports the vector space model for a more accurate retrieval than boolean.
 
-We keep two different indexes, one for the ATC documents and the second for the ICD documents. Since the indexing is very fast, we keep both the indexes in ram, for performance reasons during the queries (you don't need to access the disk that is usually time consuming). The ATC documents are composed by two fields: one for the atc\_code, that just indexed without any further string processing; the second field, \texttt{label}, contains the description of the code and is the one used for extracting the documents. This field is indexed, stored, tokenized and calculates the term vector matrix.
+We keep two different indexes, one for the ATC documents and the second for the ICD documents. Since the indexing is very fast, we keep both the indexes in ram, for performance reasons during the queries (you don't need to access the disk that is usually time consuming). The ATC documents are composed by two fields: one for the \texttt{atc\_code}, that just indexed without any further string processing; the second field, \texttt{label}, contains the description of the code and is the one used for extracting the documents. This field is indexed, stored, tokenized and calculates the term vector matrix.
 
 The ICD documents are indexed according to three fields. The first one is for the property \texttt{icd:code\_compacted}, to identify uniquely the codes. The second one is for the \texttt{label:} the field has the same properties as the ATC label. The third field contains all the terms of the label plus the other information for doing query expansion, such as the synonyms and the property \texttt{icd:underterm}. Adding those extra words let have a more accurate result when we submit the query to our engine. In fact at the moment we query the ICD index looking into the terms contained in the extra field.
 
 \subsection{Parsing patient cases}
 
-Since the assignment description states that preprocessing of patient case input file is legal, we took the chance and manually made an XML file representing the data contained in the \texttt{.doc} file provided. Parsing a \texttt{.doc} file would be a waste of time with no learning outcome. This as well gave us the opportunity to decide how the text is divided into sentences manually.
+Since the assignment description states that preprocessing of patient case input file is legal, we took the possibility and manually made an XML file representing the data contained in the \texttt{.doc} file provided. Parsing a \texttt{.doc} file would be a waste of time with no learning outcome. This as well gave us the opportunity to decide how the text is divided into sentences manually, and what characters to replace (we found that slashes cause problems in queries).
 
 To parse this created XML document, we were using SAX parser with our own implementation of the \texttt{DefaultHandler} to produce \texttt{MedDocument} instances from the files read. This part of the work gets done in \texttt{PatientCaseParser}.
 
 \subsection{Parsing the gold standard file}
 
-To perform the evaluation easily, we decided to make an XML file for the gold standard file\footnote{/data/goldStandard.xml} and let the application read and compare it the two result sets (the produced one and the one from gold standard) automatically. This file gets read by \texttt{GoldStandardParser} and data are held as instances of \texttt{MedDocument}.
+To perform the evaluation easily, we decided to make an XML file for the gold standard file\footnote{File is located at \texttt{/data/goldStandard.xml} in the project directory.} and let the application read and compare the two result sets (the produced one and the one from gold standard) automatically. This file gets read by \texttt{GoldStandardParser} and data are held as instances of \texttt{MedDocument}.
 
-After the patient case files are read, assigned codes and found their relevant matches from the book, we compare the relevant matches with those from the gold standard. This gets done \texttt{EvaluationService} in the very end of the program run. Evaluation results are then stored in an XML file.\footnote{\texttt{/data/output/evaluation.xml}}
+After the patient case files are read, assigned codes and found their relevant matches from the book, we compare the relevant matches with those from the gold standard. This gets done \texttt{EvaluationService} in the very end of the program run. Evaluation results are then stored in an XML file.\footnote{File is located at \texttt{/data/output/evaluation.xml} in the project directory.}
 
 \subsection{Parsing the book}
 
 The headlines in the handbook identify the therapies and drug descriptions. Those are parsed into instances of \texttt{MedDocument} as well as the corresponding text body. The text is spitted into sentences for later processing. Headlines that do not start with a legal (i.e. \textit{T3.1.1} or \textit{L2}) therapy or drug identifier are skipped. The following text is skipped too, until a legal heading is found.
-There were challenges with invalid\footnote{http://validator.w3.org/\#validate\_by\_upload} HTM files. Furthermore different ways of encoding special characters were used. I.e. both \textit{"\&aring;"} (HTML entity) and \textit{"\&#x00E5;"} (Unicode) appear.
+There were challenges with invalid\footnote{http://validator.w3.org/\#validate\_by\_upload} HTM files. Furthermore different ways of encoding special characters were used. I.e. both \texttt{\&aring;} (HTML entity) and \texttt{\&\#x00E5;} (Unicode) appear.
 
 \section{Limitations given in the assignment. Present theories used. Are any theories outside of the curriculum been used? Explain the reason for the selection}
 \section{How have the theories been adapted to the assignment?}
