@@ -12,12 +12,13 @@
 \title{Group project in TDT4215\\
 Web-intelligence}
 
-\date{April 20, 2013}
+\date{April 23, 2013}
 
 \author{
   Alessio DE ANGELIS\and 
   Martin HENGSTBERGER\and
-  Simon STASTNY}
+  Simon STASTNY\and 
+	2440 words}
 
 \maketitle
 
@@ -50,7 +51,7 @@ This part presents textual description of application flow. Please refer to the 
     \label{fig:seq}
 \end{figure}
 
-In the beginning, the ICD and ATC files are parsed by \texttt{ATCParser} and \texttt{ATCParser} respectively, new tasks (\texttt{ATCIndexer} and \texttt{ICDIndexer}) for indexing  them are created and submitted to the executor.
+In the beginning, the ICD and ATC files are parsed by \texttt{ATCParser} and \texttt{ICDIndexer} respectively, new tasks (\texttt{ATCIndexer} and \texttt{ICDIndexer}) for indexing  them are created and submitted to the executor.
 
 Directories \texttt{/data/book/} and \texttt{data/patient\_data/} are then scanned for files. For each patient case file a new \texttt{PatientCaseParser} task is submitted to the executor. Same thing happens for book files, the only difference being the parser implementation, which is \texttt{BookParser} in this case. These return collections of \texttt{MedDocument} instances.
 
@@ -114,17 +115,16 @@ The headlines in the handbook identify the therapies and drug descriptions. Thos
 There were challenges with invalid\footnote{http://validator.w3.org/\#validate\_by\_upload} HTM files. Furthermore different ways of encoding special characters were used. I.e. both \texttt{\&aring;} (HTML entity) and \texttt{\&\#x00E5;} (Unicode) appear.
 
 \section{Limitations given in the assignment. Present theories used. Are any theories outside of the curriculum been used? Explain the reason for the selection}
-Information retrieval is about finding a relevant document for given query. We did not try to find new structures or pattern within the document to classify them. Classification is done purely by comparison. For this Project we applied the Information Retrieval theory, implemented partly by Lucene and partly by ourselves (See Sections above). Lucene is building and index of sentences for us. So terms can be more than one word long to increase the accuracy. Furthermore rating (ordering) of hits is done by relevance (Lucene). 
+Information retrieval is about finding a relevant document for given query. We did not try to find new structures or patterns within the document (Semantic Web). Classification is done purely by comparison with the ATC / ICT ontologies. For this project we applied the Information Retrieval theory, implemented partly by Lucene and partly by ourselves (See Sections above). Lucene is building and index of sentences for us. So terms can be more than one word long to increase the accuracy. Furthermore ordering (rating) of hits is done by relevance (Lucene). 
 \section{How have the theories been adapted to the assignment?}
-For creating an index in Lucene a analyzer is used. Most popular is the \textit{Porter Analyzer}, however this includes Stemming for the English language only. Stemming trims the word for their endings. Thus i.e. "`cars"' will be indexed as "`car"' but would still link occurrences of both terms. We had to adapt this process by using the \textit{NorwegianAnalyzer} since stemming is language specific. 
-\section{Summary of the results.}
-Since the query engine is not implemented, we obviously do not hit anything. 
-\section{Evaluation and discussion of the results. Limitations of your evaluation results.}
+For creating an index in Lucene a analyzer is used. Most popular is the \textit{Porter Analyzer}, however this includes Stemming for the English language only. Stemming trims the word for their endings. Thus i.e. "`cars"' will be indexed as "`car"' but would still link occurrences of both terms. We had to adapt this process by using the \textit{NorwegianAnalyzer} since stemming is language specific. See section 3.2. 
+\section{Summary of the results}
+Since the query engine is not implemented and a rating system is missing we recieve a lot of false negative result and almost no true positives. Our project consists of 1656 lines of code.
+\section{Evaluation and discussion of the results. Limitations of your evaluation results}
 The evaluation is based on a comparison with the gold standard, which is valuable to have and a transparent way of evaluating. However the gold standard is not perfect. I.e. in the patient case 5, where there are no relevant documents available, it would be OK to differ in that case. Furthermore there is the limit of Information Retrieval. I.e. one patient note states in rough translation "`...the heart rate is normal..."', since our application can not understand this phrase, documents related to the heart rate are considered relevant, which in in fact not or little. Finding issues like this was notably demanding for our group, science none of us speak Norwegian. 
-\section{Thoughts of potential improvements.}
+\section{Thoughts of potential improvements}
 Of course a semantic approach would allow us to understand, classify and structure our findings so that situation as mentioned in the evaluation section (heat rate example) could be solved. On the other hand this is a major task and might degrade results in other situations. Also it would computational more intense, but has the potential of much more intelligent results.
-We could use a black list of insignificant Norwegian words, such as "`og"', "`han"', "`på"', ... . Thinking further a white list could also be created with very meaningful words i.e. "`diabetes"' or "`tonsilitt"'. This list could be enhanced with a rating "`bonus / malus"' that rating would higher for a term appearing in a headline that in a simple text. It would be tempting to optimize these lists by hand and each term's rating to match the gold Standard 100\%. This way we would cheat for perfect evaluation results. Also See future work. 
-\section{Conclusions.}
+We could use a black list of insignificant Norwegian words, such as "`og"', "`han"', "`på"', ... . Thinking further a white list could also be created with very meaningful words i.e. "`diabetes"' or "`tonsilitt"'. This list could be enhanced with a rating "`bonus / malus"' that rating would higher for a term appearing in a headline that in a simple text. It would be tempting to optimize these lists by hand and each term's rating to match the gold Standard 100\%. This way we would cheat for perfect evaluation results. Also See future work. Ther is lots of room for improvements.
 
 \section{Future work}
 Our system is accurate but in the future some refinements could be done to improve our query engine that we didn't manage to implement due to time constraints. For example an evaluation function that gives more  importance to the hierarchy of the classes, for example if a code is subClassOf another code (E10, subclass and E10-14, the superclass in ICD for example). Since we use \emph{Jena} to read the OWL ontologies, could be done through a simple graph traversal using suitable methods offered by the APIs, or using ad hoc SPARQL queries.
